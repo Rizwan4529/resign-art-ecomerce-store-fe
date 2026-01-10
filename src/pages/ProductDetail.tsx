@@ -10,6 +10,7 @@ import { Separator } from '../components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Product3DViewer } from '../components/Product/Product3DViewer';
 import { ProductCard } from '../components/Product/ProductCard';
+import { ProductReviews } from '../components/ProductReviews';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { extractErrorMessage } from '../utils/authHelpers';
 import { getImageUrl } from '../utils/imageUtils';
@@ -259,8 +260,9 @@ export const ProductDetail = () => {
 
         {/* Product Details Tabs */}
         <Tabs defaultValue="details" className="mb-16">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="details">Product Details</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
             <TabsTrigger value="shipping">Shipping & Returns</TabsTrigger>
           </TabsList>
 
@@ -307,6 +309,12 @@ export const ProductDetail = () => {
               <div className="mt-2">
                 <strong>Care Instructions:</strong> Clean with a soft, damp cloth. Avoid harsh chemicals.
               </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="reviews">
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+              <ProductReviews productId={product.id} productName={product.name} />
             </div>
           </TabsContent>
 

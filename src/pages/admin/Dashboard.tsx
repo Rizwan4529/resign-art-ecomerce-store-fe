@@ -1,51 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Users, Package, ShoppingCart, DollarSign, TrendingUp, TrendingDown, 
-  Plus, Eye, Edit, Trash2, AlertTriangle, BarChart3 
+import React from 'react';
+import {
+  Users, Package, ShoppingCart, DollarSign, TrendingUp, AlertTriangle
 } from 'lucide-react';
-import { Analytics, Product, User, Order } from '../../types';
-import { api } from '../../services/api';
 import { ProductManagement } from './ProductManagement';
 import { OrderManagement } from './OrderManagement';
 import { UserManagement } from './UserManagement';
+import { InventoryManagement } from './InventoryManagement';
+import { ProfitManagement } from './ProfitManagement';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useGetDashboardSummaryQuery, useGetDetailedProfitReportQuery } from '../../services/api/profitApi';
+import { useGetProductsQuery } from '../../services/api/productApi';
+import { useGetUsersQuery } from '../../services/api/userApi';
 
 export const AdminDashboard = () => {
-  const [analytics, setAnalytics] = useState<Analytics | null>(null);
-  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  // RTK Query hooks for real data
+  const { data: dashboardData, isLoading: isDashboardLoading } = useGetDashboardSummaryQuery();
+  const { data: productsData, isLoading: isProductsLoading } = useGetProductsQuery({});
+  const { data: usersData, isLoading: isUsersLoading } = useGetUsersQuery({ page: 1, limit: 1 });
+  const { data: profitData, isLoading: isProfitLoading } = useGetDetailedProfitReportQuery({
+    year: new Date().getFullYear()
+  });
 
-  useEffect(() => {
-    const loadDashboardData = async () => {
-      try {
-        const [analyticsData, ordersData, productsData] = await Promise.all([
-          api.getAnalytics(),
-          api.getOrders(),
-          api.getProducts()
-        ]);
+  const loading = isDashboardLoading || isProductsLoading || isUsersLoading || isProfitLoading;
 
-        setAnalytics(analyticsData);
-        setRecentOrders(ordersData.slice(0, 5));
-        setProducts(productsData);
-      } catch (error) {
-        console.error('Failed to load dashboard data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const dashboard = dashboardData?.data;
+  const products = productsData?.data || [];
+  const totalProducts = productsData?.pagination?.totalCount || 0;
+  const totalUsers = usersData?.pagination?.totalCount || 0;
 
-    loadDashboardData();
-  }, []);
-
-  const monthlyRevenueData = analytics?.monthlyRevenue.map((revenue, index) => ({
-    month: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][index],
-    revenue
+  // Prepare monthly revenue chart data from profit report
+  const monthlyRevenueData = profitData?.data?.monthly.map((month) => ({
+    month: month.monthName.slice(0, 3),
+    revenue: month.income
   })) || [];
+
+  // Find top products by rating
+  const topProducts = [...products]
+    .filter(p => p.averageRating && parseFloat(p.averageRating.toString()) > 0)
+    .sort((a, b) => parseFloat(b.averageRating?.toString() || '0') - parseFloat(a.averageRating?.toString() || '0'))
+    .slice(0, 5);
+
+  // Find low stock products
+  const lowStockProducts = products.filter(p => p.stock <= 10 && p.isActive);
 
   if (loading) {
     return (
@@ -62,7 +62,7 @@ export const AdminDashboard = () => {
     );
   }
 
-  if (!analytics) {
+  if (!dashboard) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
         <div className="text-center">
@@ -86,14 +86,15 @@ export const AdminDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="bg-white/70 backdrop-blur-sm border-white/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+              <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${analytics.totalRevenue.toLocaleString()}</div>
+              <div className="text-2xl font-bold">
+                ${dashboard.monthlyRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
               <p className="text-xs text-muted-foreground">
-                <TrendingUp className="inline w-3 h-3 mr-1" />
-                +12% from last month
+                This month's revenue
               </p>
             </CardContent>
           </Card>
@@ -104,10 +105,9 @@ export const AdminDashboard = () => {
               <ShoppingCart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{analytics.totalOrders}</div>
+              <div className="text-2xl font-bold">{dashboard.totalOrders.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">
-                <TrendingUp className="inline w-3 h-3 mr-1" />
-                +8% from last month
+                {dashboard.pendingOrders} pending
               </p>
             </CardContent>
           </Card>
@@ -118,10 +118,9 @@ export const AdminDashboard = () => {
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{analytics.totalProducts}</div>
+              <div className="text-2xl font-bold">{totalProducts.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">
-                <TrendingUp className="inline w-3 h-3 mr-1" />
-                +3 new this week
+                {dashboard.lowStockAlerts} low stock alerts
               </p>
             </CardContent>
           </Card>
@@ -132,10 +131,9 @@ export const AdminDashboard = () => {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{analytics.totalUsers}</div>
+              <div className="text-2xl font-bold">{totalUsers.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">
-                <TrendingUp className="inline w-3 h-3 mr-1" />
-                +15% from last month
+                {dashboard.newUsersThisMonth} new this month
               </p>
             </CardContent>
           </Card>
@@ -184,32 +182,42 @@ export const AdminDashboard = () => {
               <Card className="bg-white/70 backdrop-blur-sm border-white/20">
                 <CardHeader>
                   <CardTitle>Top Products</CardTitle>
-                  <CardDescription>Best performing products</CardDescription>
+                  <CardDescription>Best performing products by rating</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {analytics.topProducts.map((product, index) => (
-                      <div key={product.id} className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold">
-                          #{index + 1}
+                    {topProducts.length > 0 ? (
+                      topProducts.map((product, index) => (
+                        <div key={product.id} className="flex items-center space-x-4">
+                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold">
+                            #{index + 1}
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium">{product.name}</div>
+                            <div className="text-sm text-gray-600">
+                              ${typeof product.price === 'string' ? product.price : product.price.toFixed(2)}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-medium">
+                              {parseFloat(product.averageRating?.toString() || '0').toFixed(1)} ★
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {product.totalReviews || 0} reviews
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <div className="font-medium">{product.name}</div>
-                          <div className="text-sm text-gray-600">${product.price}</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-medium">{product.rating.toFixed(1)} ★</div>
-                          <div className="text-sm text-gray-600">{product.reviews.length} reviews</div>
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <p className="text-gray-500 text-center py-4">No rated products yet</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Low Stock Alert */}
-            {analytics.lowStockProducts.length > 0 && (
+            {lowStockProducts.length > 0 && (
               <Card className="bg-orange-50 border-orange-200">
                 <CardHeader>
                   <CardTitle className="flex items-center text-orange-800">
@@ -222,11 +230,13 @@ export const AdminDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {analytics.lowStockProducts.map((product) => (
+                    {lowStockProducts.map((product) => (
                       <div key={product.id} className="flex items-center justify-between p-3 bg-white rounded-lg">
                         <div>
                           <div className="font-medium">{product.name}</div>
-                          <div className="text-sm text-gray-600">{product.category}</div>
+                          <div className="text-sm text-gray-600">
+                            {product.category.replace('_', ' ')}
+                          </div>
                         </div>
                         <Badge variant="destructive">
                           {product.stock} left
@@ -254,33 +264,14 @@ export const AdminDashboard = () => {
             <UserManagement />
           </TabsContent>
 
-          {/* Additional tabs would continue here */}
+          {/* Inventory Tab */}
           <TabsContent value="inventory">
-            <Card className="bg-white/70 backdrop-blur-sm border-white/20">
-              <CardHeader>
-                <CardTitle>Inventory Management</CardTitle>
-                <CardDescription>Track and manage product inventory</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8 text-gray-600">
-                  Inventory management features coming soon...
-                </div>
-              </CardContent>
-            </Card>
+            <InventoryManagement />
           </TabsContent>
 
+          {/* Financial Tab */}
           <TabsContent value="financial">
-            <Card className="bg-white/70 backdrop-blur-sm border-white/20">
-              <CardHeader>
-                <CardTitle>Financial Management</CardTitle>
-                <CardDescription>Track profits, expenses, and financial reports</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8 text-gray-600">
-                  Financial management features coming soon...
-                </div>
-              </CardContent>
-            </Card>
+            <ProfitManagement />
           </TabsContent>
         </Tabs>
       </div>

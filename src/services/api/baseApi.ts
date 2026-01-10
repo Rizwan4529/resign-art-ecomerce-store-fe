@@ -20,7 +20,7 @@ export const baseApi = createApi({
     },
   }),
   // Tag types for cache invalidation
-  tagTypes: ['User', 'Product', 'Order', 'Cart'],
+  tagTypes: ['User', 'Product', 'Order', 'Cart', 'Inventory', 'SalesReport'],
   // Endpoints will be injected by individual API slices
   endpoints: () => ({}),
 });
