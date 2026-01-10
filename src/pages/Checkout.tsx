@@ -38,6 +38,12 @@ export const Checkout = () => {
     cvv: '',
     name: '',
   });
+  const [validationErrors, setValidationErrors] = useState({
+    cardNumber: '',
+    expiry: '',
+    cvv: '',
+    phone: '',
+  });
 
   const items = cartData?.data?.items || [];
   const subtotal = parseFloat(cartData?.data?.summary?.subtotal || '0');
@@ -46,17 +52,121 @@ export const Checkout = () => {
   const tax = subtotal * taxRate;
   const grandTotal = subtotal + shippingCost + tax;
 
+  // Luhn Algorithm for card validation
+  const luhnCheck = (cardNumber: string): boolean => {
+    const digits = cardNumber.replace(/\s/g, '');
+    let sum = 0;
+    let isEven = false;
+
+    for (let i = digits.length - 1; i >= 0; i--) {
+      let digit = parseInt(digits[i], 10);
+
+      if (isEven) {
+        digit *= 2;
+        if (digit > 9) {
+          digit -= 9;
+        }
+      }
+
+      sum += digit;
+      isEven = !isEven;
+    }
+
+    return sum % 10 === 0;
+  };
+
+  // Validate card number
+  const validateCardNumber = (number: string): string => {
+    const digits = number.replace(/\s/g, '');
+
+    if (!digits) return 'Card number is required';
+    if (!/^\d+$/.test(digits)) return 'Card number must contain only digits';
+    if (digits.length < 13 || digits.length > 19) return 'Card number must be 13-19 digits';
+    if (!luhnCheck(number)) return 'Invalid card number';
+
+    return '';
+  };
+
+  // Validate expiry date
+  const validateExpiry = (expiry: string): string => {
+    if (!expiry) return 'Expiry date is required';
+
+    const expiryRegex = /^(0[1-9]|1[0-2])\/([0-9]{2})$/;
+    if (!expiryRegex.test(expiry)) return 'Invalid format. Use MM/YY';
+
+    const [month, year] = expiry.split('/');
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear() % 100;
+    const currentMonth = currentDate.getMonth() + 1;
+
+    const expYear = parseInt(year, 10);
+    const expMonth = parseInt(month, 10);
+
+    if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
+      return 'Card has expired';
+    }
+
+    return '';
+  };
+
+  // Validate CVV
+  const validateCVV = (cvv: string): string => {
+    if (!cvv) return 'CVV is required';
+    if (!/^\d{3,4}$/.test(cvv)) return 'CVV must be 3-4 digits';
+    return '';
+  };
+
+  // Validate phone number
+  const validatePhone = (phone: string): string => {
+    if (!phone) return 'Phone number is required';
+    const phoneDigits = phone.replace(/[\s\-\+\(\)]/g, '');
+    if (!/^\d{10,15}$/.test(phoneDigits)) return 'Phone number must be 10-15 digits';
+    return '';
+  };
+
+  // Format card number with spaces
+  const formatCardNumber = (value: string): string => {
+    const digits = value.replace(/\D/g, '');
+    const formatted = digits.match(/.{1,4}/g)?.join(' ') || digits;
+    return formatted.substring(0, 19); // Max 16 digits + 3 spaces
+  };
+
+  // Format expiry date
+  const formatExpiry = (value: string): string => {
+    const digits = value.replace(/\D/g, '');
+    if (digits.length >= 2) {
+      return `${digits.substring(0, 2)}/${digits.substring(2, 4)}`;
+    }
+    return digits;
+  };
+
   const validateStep = (stepNumber: number) => {
     switch (stepNumber) {
       case 1:
+        const phoneError = validatePhone(shippingPhone);
+        if (phoneError) {
+          setValidationErrors(prev => ({ ...prev, phone: phoneError }));
+          return false;
+        }
         return shippingAddress.trim() !== '' && shippingPhone.trim() !== '';
       case 2:
         if (paymentMethod === 'CREDIT_CARD' || paymentMethod === 'DEBIT_CARD') {
+          const cardError = validateCardNumber(cardDetails.number);
+          const expiryError = validateExpiry(cardDetails.expiry);
+          const cvvError = validateCVV(cardDetails.cvv);
+
+          setValidationErrors(prev => ({
+            ...prev,
+            cardNumber: cardError,
+            expiry: expiryError,
+            cvv: cvvError,
+          }));
+
           return (
-            cardDetails.number &&
-            cardDetails.expiry &&
-            cardDetails.cvv &&
-            cardDetails.name
+            !cardError &&
+            !expiryError &&
+            !cvvError &&
+            cardDetails.name.trim() !== ''
           );
         }
         return true;
@@ -233,10 +343,24 @@ export const Checkout = () => {
                       id="shippingPhone"
                       type="tel"
                       value={shippingPhone}
-                      onChange={(e) => setShippingPhone(e.target.value)}
+                      onChange={(e) => {
+                        setShippingPhone(e.target.value);
+                        setValidationErrors(prev => ({ ...prev, phone: '' }));
+                      }}
+                      onBlur={(e) => {
+                        const error = validatePhone(e.target.value);
+                        setValidationErrors(prev => ({ ...prev, phone: error }));
+                      }}
                       placeholder="+92-300-1234567"
                       required
+                      className={validationErrors.phone ? 'border-red-500' : ''}
                     />
+                    {validationErrors.phone && (
+                      <p className="text-xs text-red-500 mt-1">{validationErrors.phone}</p>
+                    )}
+                    <p className="text-xs text-gray-500 mt-1">
+                      Example: +92-300-1234567 or 03001234567
+                    </p>
                   </div>
 
                   <div>
@@ -341,7 +465,7 @@ export const Checkout = () => {
                     paymentMethod === 'DEBIT_CARD') && (
                     <div className="space-y-4 mt-4 p-4 bg-gray-50 rounded-lg">
                       <div>
-                        <Label htmlFor="cardName">Cardholder Name</Label>
+                        <Label htmlFor="cardName">Cardholder Name *</Label>
                         <Input
                           id="cardName"
                           value={cardDetails.name}
@@ -349,48 +473,81 @@ export const Checkout = () => {
                             setCardDetails((prev) => ({ ...prev, name: e.target.value }))
                           }
                           placeholder="John Doe"
+                          required
                         />
                       </div>
                       <div>
-                        <Label htmlFor="cardNumber">Card Number</Label>
+                        <Label htmlFor="cardNumber">Card Number *</Label>
                         <Input
                           id="cardNumber"
                           value={cardDetails.number}
-                          onChange={(e) =>
-                            setCardDetails((prev) => ({
-                              ...prev,
-                              number: e.target.value,
-                            }))
-                          }
+                          onChange={(e) => {
+                            const formatted = formatCardNumber(e.target.value);
+                            setCardDetails((prev) => ({ ...prev, number: formatted }));
+                            setValidationErrors(prev => ({ ...prev, cardNumber: '' }));
+                          }}
+                          onBlur={(e) => {
+                            const error = validateCardNumber(e.target.value);
+                            setValidationErrors(prev => ({ ...prev, cardNumber: error }));
+                          }}
                           placeholder="1234 5678 9012 3456"
+                          maxLength={19}
+                          required
+                          className={validationErrors.cardNumber ? 'border-red-500' : ''}
                         />
+                        {validationErrors.cardNumber && (
+                          <p className="text-xs text-red-500 mt-1">{validationErrors.cardNumber}</p>
+                        )}
+                        <p className="text-xs text-gray-500 mt-1">
+                          Enter your 13-19 digit card number
+                        </p>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="expiry">Expiry Date</Label>
+                          <Label htmlFor="expiry">Expiry Date *</Label>
                           <Input
                             id="expiry"
                             value={cardDetails.expiry}
-                            onChange={(e) =>
-                              setCardDetails((prev) => ({
-                                ...prev,
-                                expiry: e.target.value,
-                              }))
-                            }
+                            onChange={(e) => {
+                              const formatted = formatExpiry(e.target.value);
+                              setCardDetails((prev) => ({ ...prev, expiry: formatted }));
+                              setValidationErrors(prev => ({ ...prev, expiry: '' }));
+                            }}
+                            onBlur={(e) => {
+                              const error = validateExpiry(e.target.value);
+                              setValidationErrors(prev => ({ ...prev, expiry: error }));
+                            }}
                             placeholder="MM/YY"
+                            maxLength={5}
+                            required
+                            className={validationErrors.expiry ? 'border-red-500' : ''}
                           />
+                          {validationErrors.expiry && (
+                            <p className="text-xs text-red-500 mt-1">{validationErrors.expiry}</p>
+                          )}
                         </div>
                         <div>
-                          <Label htmlFor="cvv">CVV</Label>
+                          <Label htmlFor="cvv">CVV *</Label>
                           <Input
                             id="cvv"
                             value={cardDetails.cvv}
-                            onChange={(e) =>
-                              setCardDetails((prev) => ({ ...prev, cvv: e.target.value }))
-                            }
+                            onChange={(e) => {
+                              const digits = e.target.value.replace(/\D/g, '');
+                              setCardDetails((prev) => ({ ...prev, cvv: digits }));
+                              setValidationErrors(prev => ({ ...prev, cvv: '' }));
+                            }}
+                            onBlur={(e) => {
+                              const error = validateCVV(e.target.value);
+                              setValidationErrors(prev => ({ ...prev, cvv: error }));
+                            }}
                             placeholder="123"
-                            maxLength={3}
+                            maxLength={4}
+                            required
+                            className={validationErrors.cvv ? 'border-red-500' : ''}
                           />
+                          {validationErrors.cvv && (
+                            <p className="text-xs text-red-500 mt-1">{validationErrors.cvv}</p>
+                          )}
                         </div>
                       </div>
                     </div>
