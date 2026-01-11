@@ -1,28 +1,34 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Palette, ArrowLeft, Check } from 'lucide-react';
-import { useDispatch } from 'react-redux';
-import { setCredentials } from '../../store/slices/authSlice';
-import { useSignupMutation } from '../../services/api/authApi';
-import { extractErrorMessage } from '../../utils/authHelpers';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Label } from '../../components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Alert, AlertDescription } from '../../components/ui/alert';
-import { Checkbox } from '../../components/ui/checkbox';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff, Palette, ArrowLeft, Check } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../../store/slices/authSlice";
+import { useSignupMutation } from "../../services/api/authApi";
+import { extractErrorMessage } from "../../utils/authHelpers";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Alert, AlertDescription } from "../../components/ui/alert";
+import { Checkbox } from "../../components/ui/checkbox";
 
 export const Signup = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const dispatch = useDispatch();
   const [signupMutation, { isLoading }] = useSignupMutation();
@@ -30,46 +36,46 @@ export const Signup = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const validateForm = () => {
     if (!formData.name.trim()) {
-      setError('Name is required');
+      setError("Name is required");
       return false;
     }
-    
+
     if (!formData.email.trim()) {
-      setError('Email is required');
+      setError("Email is required");
       return false;
     }
-    
+
     if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      setError('Please enter a valid email address');
+      setError("Please enter a valid email address");
       return false;
     }
-    
+
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError("Password must be at least 6 characters long");
       return false;
     }
-    
+
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return false;
     }
-    
-    if (!acceptTerms) {
-      setError('Please accept the terms and conditions');
-      return false;
-    }
-    
+
+    // if (!acceptTerms) {
+    //   setError("Please accept the terms and conditions");
+    //   return false;
+    // }
+
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!validateForm()) {
       return;
@@ -89,7 +95,7 @@ export const Signup = () => {
       dispatch(setCredentials({ user, token }));
 
       // Navigate to home
-      navigate('/');
+      navigate("/");
     } catch (err: any) {
       setError(extractErrorMessage(err));
     }
@@ -108,15 +114,15 @@ export const Signup = () => {
     switch (strength) {
       case 0:
       case 1:
-        return 'bg-red-500';
+        return "bg-red-500";
       case 2:
-        return 'bg-yellow-500';
+        return "bg-yellow-500";
       case 3:
-        return 'bg-blue-500';
+        return "bg-blue-500";
       case 4:
-        return 'bg-green-500';
+        return "bg-green-500";
       default:
-        return 'bg-gray-300';
+        return "bg-gray-300";
     }
   };
 
@@ -124,36 +130,43 @@ export const Signup = () => {
     switch (strength) {
       case 0:
       case 1:
-        return 'Weak';
+        return "Weak";
       case 2:
-        return 'Fair';
+        return "Fair";
       case 3:
-        return 'Good';
+        return "Good";
       case 4:
-        return 'Strong';
+        return "Strong";
       default:
-        return '';
+        return "";
     }
   };
 
   const strength = passwordStrength(formData.password);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative"
-    style={{
-    background: "linear-gradient(180deg, #3a1c9c, #7a4fd1, #b97be6, #ff9adf)"
-  }}>
+    <div
+      className="min-h-screen flex items-center justify-center p-4 relative"
+      style={{
+        background:
+          "linear-gradient(180deg, #3a1c9c, #7a4fd1, #b97be6, #ff9adf)",
+      }}
+    >
       {/* Animated Background */}
-      <div className="absolute inset-0 opacity-20 animate-pulse" style={{
-        backgroundImage: 'radial-gradient(circle at 20px 20px, rgba(255,255,255,0.1) 2px, transparent 2px)',
-        backgroundSize: '40px 40px'
-      }} />
-      
+      <div
+        className="absolute inset-0 opacity-20 animate-pulse"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 20px 20px, rgba(255,255,255,0.1) 2px, transparent 2px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
+
       <div className="relative w-full max-w-md">
         {/* Back Button */}
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate('/')}
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/")}
           className="mb-6 text-white hover:bg-white/10"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -166,11 +179,15 @@ export const Signup = () => {
               <Palette className="w-8 h-8 text-white" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
-              <CardDescription>Join ResinArt and start your artistic journey</CardDescription>
+              <CardTitle className="text-2xl font-bold">
+                Create Account
+              </CardTitle>
+              <CardDescription>
+                Join ResinArt and start your artistic journey
+              </CardDescription>
             </div>
           </CardHeader>
-          
+
           <CardContent className="space-y-6">
             {error && (
               <Alert variant="destructive">
@@ -213,7 +230,7 @@ export const Signup = () => {
                   <Input
                     id="password"
                     name="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     value={formData.password}
                     onChange={handleInputChange}
                     placeholder="Create a password"
@@ -234,7 +251,7 @@ export const Signup = () => {
                     )}
                   </Button>
                 </div>
-                
+
                 {/* Password Strength Indicator */}
                 {formData.password && (
                   <div className="space-y-2">
@@ -243,15 +260,24 @@ export const Signup = () => {
                         <div
                           key={i}
                           className={`h-2 flex-1 rounded ${
-                            i < strength ? getStrengthColor(strength) : 'bg-gray-200'
+                            i < strength
+                              ? getStrengthColor(strength)
+                              : "bg-gray-200"
                           }`}
                         />
                       ))}
                     </div>
                     <p className="text-xs text-gray-600">
-                      Password strength: <span className={`font-medium ${
-                        strength >= 3 ? 'text-green-600' : strength >= 2 ? 'text-blue-600' : 'text-red-600'
-                      }`}>
+                      Password strength:{" "}
+                      <span
+                        className={`font-medium ${
+                          strength >= 3
+                            ? "text-green-600"
+                            : strength >= 2
+                            ? "text-blue-600"
+                            : "text-red-600"
+                        }`}
+                      >
                         {getStrengthText(strength)}
                       </span>
                     </p>
@@ -265,7 +291,7 @@ export const Signup = () => {
                   <Input
                     id="confirmPassword"
                     name="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
+                    type={showConfirmPassword ? "text" : "password"}
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     placeholder="Confirm your password"
@@ -286,66 +312,49 @@ export const Signup = () => {
                     )}
                   </Button>
                 </div>
-                
+
                 {/* Password Match Indicator */}
                 {formData.confirmPassword && (
                   <div className="flex items-center space-x-2">
                     {formData.password === formData.confirmPassword ? (
                       <>
                         <Check className="w-4 h-4 text-green-600" />
-                        <span className="text-xs text-green-600">Passwords match</span>
+                        <span className="text-xs text-green-600">
+                          Passwords match
+                        </span>
                       </>
                     ) : (
                       <>
                         <span className="w-4 h-4 text-red-600">✕</span>
-                        <span className="text-xs text-red-600">Passwords don't match</span>
+                        <span className="text-xs text-red-600">
+                          Passwords don't match
+                        </span>
                       </>
                     )}
                   </div>
                 )}
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="terms"
-                  checked={acceptTerms}
-                  onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
-                />
-                <Label htmlFor="terms" className="text-sm leading-relaxed">
-                  I agree to the{' '}
-                  <Link to="/terms" className="text-blue-600 hover:text-blue-700 underline">
-                    Terms of Service
-                  </Link>{' '}
-                  and{' '}
-                  <Link to="/privacy" className="text-blue-600 hover:text-blue-700 underline">
-                    Privacy Policy
-                  </Link>
-                </Label>
-              </div>
-
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                 disabled={isLoading}
               >
-                {isLoading ? 'Creating Account...' : 'Create Account'}
+                {isLoading ? "Creating Account..." : "Create Account"}
               </Button>
             </form>
 
             <div className="text-center">
               <p className="text-sm text-gray-600">
-                Already have an account?{' '}
-                <Link 
-                  to="/login" 
+                Already have an account?{" "}
+                <Link
+                  to="/login"
                   className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
                 >
                   Sign in
                 </Link>
               </p>
             </div>
-
-            
-            
           </CardContent>
         </Card>
       </div>

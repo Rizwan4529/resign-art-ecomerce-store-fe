@@ -7,6 +7,7 @@ import { useCart } from '../../context/CartContext';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
+import { ImageWithFallback } from '../figma/ImageWithFallback';
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -93,7 +94,19 @@ export const Navbar = () => {
             {user ? (
               <div className="relative group">
                 <Button variant="ghost" size="sm" className="flex items-center space-x-2">
-                  <User className="w-5 h-5" />
+                  {user.profileImage ? (
+                    <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white shadow-sm">
+                      <ImageWithFallback
+                        src={user.profileImage}
+                        alt={user.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   <span className="hidden sm:inline">{user.name}</span>
                 </Button>
                 <div className="absolute right-0 mt-2 w-48 bg-white/90 backdrop-blur-md rounded-lg shadow-lg border border-white/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">

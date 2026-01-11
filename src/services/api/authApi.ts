@@ -33,6 +33,14 @@ export interface ResetPasswordRequest {
   confirmPassword: string;
 }
 
+export interface UpdateProfileRequest {
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  dateOfBirth?: string;
+}
+
 // Response types
 export interface AuthResponse {
   user: User;
@@ -95,6 +103,35 @@ export const authApi = baseApi.injectEndpoints({
         body: data,
       }),
     }),
+
+    // Update profile mutation (Protected)
+    updateProfile: builder.mutation<ApiResponse<User>, UpdateProfileRequest>({
+      query: (data) => ({
+        url: '/auth/profile',
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['User'],
+    }),
+
+    // Upload profile picture mutation (Protected)
+    uploadProfilePicture: builder.mutation<ApiResponse<{ user: User }>, FormData>({
+      query: (formData) => ({
+        url: '/auth/profile/picture',
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: ['User'],
+    }),
+
+    // Delete own account mutation (Protected)
+    deleteAccount: builder.mutation<ApiResponse<void>, void>({
+      query: () => ({
+        url: '/auth/account',
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['User'],
+    }),
   }),
 });
 
@@ -105,4 +142,7 @@ export const {
   useChangePasswordMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
+  useUpdateProfileMutation,
+  useUploadProfilePictureMutation,
+  useDeleteAccountMutation,
 } = authApi;

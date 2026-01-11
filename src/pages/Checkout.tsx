@@ -378,7 +378,9 @@ export const Checkout = () => {
                     paymentMethod === "DEBIT_CARD") && (
                     <div className="space-y-4 mt-4 p-4 bg-gray-50 rounded-lg">
                       <div>
-                        <Label htmlFor="cardName">Cardholder Name</Label>
+                        <Label htmlFor="cardName" className="mb-2">
+                          Cardholder Name
+                        </Label>
                         <Input
                           id="cardName"
                           value={cardDetails.name}
@@ -392,7 +394,9 @@ export const Checkout = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="cardNumber">Card Number</Label>
+                        <Label htmlFor="cardNumber" className="mb-2">
+                          Card Number
+                        </Label>
                         <Input
                           id="cardNumber"
                           value={cardDetails.number}
@@ -418,7 +422,9 @@ export const Checkout = () => {
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="expiry">Expiry Date</Label>
+                          <Label htmlFor="expiry" className="mb-2">
+                            Expiry Date
+                          </Label>
                           <Input
                             id="expiry"
                             value={cardDetails.expiry}
@@ -447,7 +453,9 @@ export const Checkout = () => {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="cvv">CVV</Label>
+                          <Label htmlFor="cvv" className="mb-2">
+                            CVV
+                          </Label>
                           <Input
                             id="cvv"
                             value={cardDetails.cvv}

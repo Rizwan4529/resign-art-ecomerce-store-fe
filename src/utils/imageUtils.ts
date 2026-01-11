@@ -27,7 +27,7 @@ export const getImageUrl = (imagePath: string | undefined | null): string => {
   // If it's a relative path, prepend the server base URL
   const serverBase = getServerBaseUrl();
   const path = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
-  return `${serverBase}${path}`;
+  return `${path}`;
 };
 
 /**
@@ -41,7 +41,5 @@ export const getFirstImageUrl = (
   if (!images || images.length === 0) {
     return "";
   }
-  const fullSrc = import.meta.env.VITE_API_URL + images[0];
-
-  return fullSrc;
+  return images[0];
 };
