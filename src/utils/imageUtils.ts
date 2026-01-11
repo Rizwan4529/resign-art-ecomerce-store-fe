@@ -4,9 +4,9 @@
 
 // Get the base server URL (without /api)
 const getServerBaseUrl = (): string => {
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+  const apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
   // Remove /api from the end to get server base URL
-  return apiBaseUrl.replace(/\/api$/, '');
+  return apiBaseUrl.replace(/\/api$/, "");
 };
 
 /**
@@ -16,17 +16,17 @@ const getServerBaseUrl = (): string => {
  */
 export const getImageUrl = (imagePath: string | undefined | null): string => {
   if (!imagePath) {
-    return '';
+    return "";
   }
 
   // If it's already a full URL, return it as is
-  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
     return imagePath;
   }
 
   // If it's a relative path, prepend the server base URL
   const serverBase = getServerBaseUrl();
-  const path = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  const path = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
   return `${serverBase}${path}`;
 };
 
@@ -35,9 +35,13 @@ export const getImageUrl = (imagePath: string | undefined | null): string => {
  * @param images - Array of image paths
  * @returns The full URL to the first image, or empty string if no images
  */
-export const getFirstImageUrl = (images: string[] | undefined | null): string => {
+export const getFirstImageUrl = (
+  images: string[] | undefined | null
+): string => {
   if (!images || images.length === 0) {
-    return '';
+    return "";
   }
-  return getImageUrl(images[0]);
+  const fullSrc = import.meta.env.VITE_API_URL + images[0];
+
+  return fullSrc;
 };

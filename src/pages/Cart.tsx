@@ -1,21 +1,21 @@
-import React, { useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Minus, Plus, X, ShoppingBag, ArrowLeft, Heart } from 'lucide-react';
-import { toast } from 'sonner';
+import React, { useMemo } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Minus, Plus, X, ShoppingBag, ArrowLeft, Heart } from "lucide-react";
+import { toast } from "sonner";
 import {
   useGetCartQuery,
   useUpdateCartItemMutation,
   useRemoveFromCartMutation,
   useClearCartMutation,
-} from '../services/api/cartApi';
-import { useSelector } from 'react-redux';
-import { selectIsAuthenticated } from '../store/slices/authSlice';
-import { Button } from '../components/ui/button';
-import { Card } from '../components/ui/card';
-import { Separator } from '../components/ui/separator';
-import { Badge } from '../components/ui/badge';
-import { ImageWithFallback } from '../components/figma/ImageWithFallback';
-import { extractErrorMessage } from '../utils/authHelpers';
+} from "../services/api/cartApi";
+import { useSelector } from "react-redux";
+import { selectIsAuthenticated } from "../store/slices/authSlice";
+import { Button } from "../components/ui/button";
+import { Card } from "../components/ui/card";
+import { Separator } from "../components/ui/separator";
+import { Badge } from "../components/ui/badge";
+import { ImageWithFallback } from "../components/figma/ImageWithFallback";
+import { extractErrorMessage } from "../utils/authHelpers";
 
 export const Cart = () => {
   const navigate = useNavigate();
@@ -30,7 +30,8 @@ export const Cart = () => {
   const [clearCartMutation] = useClearCartMutation();
 
   const items = cartData?.data?.items || [];
-  const subtotal = parseFloat(cartData?.data?.summary?.subtotal || '0');
+  console.log("Items", items);
+  const subtotal = parseFloat(cartData?.data?.summary?.subtotal || "0");
 
   // Calculate shipping and tax
   const shippingCost = subtotal >= 5000 ? 0 : 500; // Free shipping for orders >= 5000
@@ -50,7 +51,7 @@ export const Cart = () => {
         data: { quantity: newQuantity },
       }).unwrap();
     } catch (error) {
-      toast.error('Failed to update quantity', {
+      toast.error("Failed to update quantity", {
         description: extractErrorMessage(error),
       });
     }
@@ -59,22 +60,22 @@ export const Cart = () => {
   const handleRemoveItem = async (itemId: number) => {
     try {
       await removeCartItem({ itemId }).unwrap();
-      toast.success('Item removed from cart');
+      toast.success("Item removed from cart");
     } catch (error) {
-      toast.error('Failed to remove item', {
+      toast.error("Failed to remove item", {
         description: extractErrorMessage(error),
       });
     }
   };
 
   const handleClearCart = async () => {
-    if (!confirm('Are you sure you want to clear your cart?')) return;
+    if (!confirm("Are you sure you want to clear your cart?")) return;
 
     try {
       await clearCartMutation().unwrap();
-      toast.success('Cart cleared successfully');
+      toast.success("Cart cleared successfully");
     } catch (error) {
-      toast.error('Failed to clear cart', {
+      toast.error("Failed to clear cart", {
         description: extractErrorMessage(error),
       });
     }
@@ -86,10 +87,17 @@ export const Cart = () => {
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="bg-white/70 backdrop-blur-sm rounded-xl p-12 border border-white/20">
             <ShoppingBag className="w-24 h-24 mx-auto text-gray-400 mb-6" />
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Please log in</h1>
-            <p className="text-gray-600 mb-8">You need to be logged in to view your cart.</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              Please log in
+            </h1>
+            <p className="text-gray-600 mb-8">
+              You need to be logged in to view your cart.
+            </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+              <Button
+                asChild
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              >
                 <Link to="/login">Log In</Link>
               </Button>
               <Button variant="outline" asChild>
@@ -108,7 +116,10 @@ export const Cart = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-6">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="bg-gray-200 rounded-lg h-32 animate-pulse" />
+              <div
+                key={i}
+                className="bg-gray-200 rounded-lg h-32 animate-pulse"
+              />
             ))}
           </div>
         </div>
@@ -122,12 +133,18 @@ export const Cart = () => {
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="bg-white/70 backdrop-blur-sm rounded-xl p-12 border border-white/20">
             <ShoppingBag className="w-24 h-24 mx-auto text-gray-400 mb-6" />
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Your cart is empty</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              Your cart is empty
+            </h1>
             <p className="text-gray-600 mb-8">
-              Looks like you haven't added any resin art pieces to your cart yet.
+              Looks like you haven't added any resin art pieces to your cart
+              yet.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+              <Button
+                asChild
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              >
                 <Link to="/shop">Continue Shopping</Link>
               </Button>
               <Button variant="outline" asChild>
@@ -148,7 +165,7 @@ export const Cart = () => {
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Shopping Cart</h1>
             <p className="text-gray-600">
-              {items.length} item{items.length > 1 ? 's' : ''} in your cart
+              {items.length} item{items.length > 1 ? "s" : ""} in your cart
             </p>
           </div>
           <Button variant="ghost" onClick={() => navigate(-1)}>
@@ -176,9 +193,18 @@ export const Cart = () => {
 
                 <div className="space-y-6">
                   {items.map((item) => {
-                    const itemPrice = typeof item.priceAtTime === 'string' ? parseFloat(item.priceAtTime) : item.priceAtTime;
-                    const currentPrice = typeof item.currentPrice === 'string' ? parseFloat(item.currentPrice) : item.currentPrice;
-                    const itemTotal = typeof item.itemTotal === 'string' ? parseFloat(item.itemTotal) : item.itemTotal;
+                    const itemPrice =
+                      typeof item.priceAtTime === "string"
+                        ? parseFloat(item.priceAtTime)
+                        : item.priceAtTime;
+                    const currentPrice =
+                      typeof item.currentPrice === "string"
+                        ? parseFloat(item.currentPrice)
+                        : item.currentPrice;
+                    const itemTotal =
+                      typeof item.itemTotal === "string"
+                        ? parseFloat(item.itemTotal)
+                        : item.itemTotal;
 
                     return (
                       <div
@@ -189,7 +215,7 @@ export const Cart = () => {
                         <div className="flex-shrink-0">
                           <Link to={`/product/${item.product.id}`}>
                             <ImageWithFallback
-                              src={item.product.images?.[0] || ''}
+                              src={item.product.images?.[0] || ""}
                               alt={item.product.name}
                               className="w-24 h-24 object-cover rounded-lg hover:scale-105 transition-transform duration-200"
                             />
@@ -207,7 +233,7 @@ export const Cart = () => {
                                 {item.product.name}
                               </Link>
                               <p className="text-gray-600 text-sm mt-1">
-                                {item.product.category.replace('_', ' ')}
+                                {item.product.category.replace("_", " ")}
                               </p>
 
                               {/* Stock Status */}
@@ -218,25 +244,36 @@ export const Cart = () => {
                               )}
 
                               {/* Customizations */}
-                              {item.customization && Object.keys(item.customization).length > 0 && (
-                                <div className="mt-2">
-                                  <p className="text-sm text-gray-600">Customizations:</p>
-                                  <div className="flex flex-wrap gap-1 mt-1">
-                                    {Object.entries(item.customization).map(([key, value]) => (
-                                      <Badge key={key} variant="secondary" className="text-xs">
-                                        {key}: {String(value)}
-                                      </Badge>
-                                    ))}
+                              {item.customization &&
+                                Object.keys(item.customization).length > 0 && (
+                                  <div className="mt-2">
+                                    <p className="text-sm text-gray-600">
+                                      Customizations:
+                                    </p>
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                      {Object.entries(item.customization).map(
+                                        ([key, value]) => (
+                                          <Badge
+                                            key={key}
+                                            variant="secondary"
+                                            className="text-xs"
+                                          >
+                                            {key}: {String(value)}
+                                          </Badge>
+                                        )
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
-                              )}
+                                )}
                             </div>
 
                             <div className="text-right">
                               <div className="text-xl font-bold text-blue-600 mb-2">
                                 ${itemTotal.toFixed(2)}
                               </div>
-                              <div className="text-sm text-gray-600">${itemPrice.toFixed(2)} each</div>
+                              <div className="text-sm text-gray-600">
+                                ${itemPrice.toFixed(2)} each
+                              </div>
                               {currentPrice !== itemPrice && (
                                 <div className="text-xs text-orange-600 mt-1">
                                   Price changed to ${currentPrice.toFixed(2)}
@@ -248,12 +285,19 @@ export const Cart = () => {
                           {/* Quantity Controls and Actions */}
                           <div className="flex items-center justify-between mt-4">
                             <div className="flex items-center space-x-2">
-                              <label className="text-sm font-medium">Qty:</label>
+                              <label className="text-sm font-medium">
+                                Qty:
+                              </label>
                               <div className="flex items-center border rounded-lg">
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                                  onClick={() =>
+                                    handleUpdateQuantity(
+                                      item.id,
+                                      item.quantity - 1
+                                    )
+                                  }
                                   disabled={item.quantity <= 1}
                                 >
                                   <Minus className="w-4 h-4" />
@@ -264,19 +308,30 @@ export const Cart = () => {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                                  onClick={() =>
+                                    handleUpdateQuantity(
+                                      item.id,
+                                      item.quantity + 1
+                                    )
+                                  }
                                   disabled={item.quantity >= item.product.stock}
                                 >
                                   <Plus className="w-4 h-4" />
                                 </Button>
                               </div>
                               {item.quantity >= item.product.stock && (
-                                <span className="text-xs text-red-600">Max quantity reached</span>
+                                <span className="text-xs text-red-600">
+                                  Max quantity reached
+                                </span>
                               )}
                             </div>
 
                             <div className="flex items-center space-x-2">
-                              <Button variant="ghost" size="sm" className="text-gray-600 hover:text-blue-600">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-gray-600 hover:text-blue-600"
+                              >
                                 <Heart className="w-4 h-4" />
                               </Button>
                               <Button
@@ -306,18 +361,26 @@ export const Cart = () => {
 
                 <div className="space-y-4">
                   <div className="flex justify-between">
-                    <span>Subtotal ({cartData?.data?.summary?.totalItems || 0} items)</span>
+                    <span>
+                      Subtotal ({cartData?.data?.summary?.totalItems || 0}{" "}
+                      items)
+                    </span>
                     <span>${subtotal.toFixed(2)}</span>
                   </div>
 
                   <div className="flex justify-between">
                     <span>Shipping</span>
-                    <span className="text-green-600">{shippingCost === 0 ? 'Free' : `$${shippingCost.toFixed(2)}`}</span>
+                    <span className="text-green-600">
+                      {shippingCost === 0
+                        ? "Free"
+                        : `$${shippingCost.toFixed(2)}`}
+                    </span>
                   </div>
 
                   {subtotal < 5000 && (
                     <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-                      Add ${(5000 - subtotal).toFixed(2)} more for free shipping!
+                      Add ${(5000 - subtotal).toFixed(2)} more for free
+                      shipping!
                     </div>
                   )}
 
@@ -375,7 +438,9 @@ export const Cart = () => {
 
         {/* Recently Viewed or Recommended Products */}
         <div className="mt-16">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">You might also like</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-8">
+            You might also like
+          </h2>
           <div className="text-center py-8 text-gray-600 bg-white/50 backdrop-blur-sm rounded-xl border border-white/20">
             Recommended products would appear here based on cart items...
           </div>
