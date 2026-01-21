@@ -1,5 +1,5 @@
-import { baseApi } from './baseApi';
-import { ApiResponse } from './types';
+import { baseApi } from "./baseApi";
+import { ApiResponse } from "./types";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -66,13 +66,15 @@ export const reviewApi = baseApi.injectEndpoints({
     // Create a review for a product
     createReview: builder.mutation<ApiResponse<Review>, CreateReviewRequest>({
       query: (data) => ({
-        url: '/reviews',
-        method: 'POST',
+        url: "/reviews",
+        method: "POST",
         body: data,
       }),
       invalidatesTags: (result, error, { productId }) => [
-        { type: 'Product' as const, id: productId },
-        { type: 'Product' as const, id: 'LIST' },
+        { type: "Product" as const, id: productId },
+        { type: "Product" as const, id: "LIST" },
+        { type: "Review" as const, id: "LIST" },
+        { type: "User" as const },
       ],
     }),
 
@@ -83,26 +85,30 @@ export const reviewApi = baseApi.injectEndpoints({
     >({
       query: ({ productId, page = 1, limit = 10 }) => {
         const queryParams = new URLSearchParams();
-        queryParams.append('page', String(page));
-        queryParams.append('limit', String(limit));
+        queryParams.append("page", String(page));
+        queryParams.append("limit", String(limit));
 
         return {
           url: `/reviews/product/${productId}?${queryParams.toString()}`,
-          method: 'GET',
+          method: "GET",
         };
       },
       providesTags: (result, error, { productId }) => [
-        { type: 'Product' as const, id: productId },
+        { type: "Review" as const, id: `PRODUCT_${productId}` },
+        { type: "Product" as const, id: productId },
       ],
     }),
 
     // Get current user's reviews
     getMyReviews: builder.query<ApiResponse<Review[]>, void>({
       query: () => ({
-        url: '/reviews/my-reviews',
-        method: 'GET',
+        url: "/reviews/my-reviews",
+        method: "GET",
       }),
-      providesTags: ['User'],
+      providesTags: [
+        { type: "Review" as const, id: "MY_LIST" },
+        { type: "User" as const },
+      ],
     }),
 
     // Update a review
@@ -112,12 +118,14 @@ export const reviewApi = baseApi.injectEndpoints({
     >({
       query: ({ reviewId, data }) => ({
         url: `/reviews/${reviewId}`,
-        method: 'PUT',
+        method: "PUT",
         body: data,
       }),
       invalidatesTags: (result, error, { reviewId }) => [
-        { type: 'Product' as const, id: 'LIST' },
-        { type: 'User' as const },
+        { type: "Review" as const, id: "MY_LIST" },
+        { type: "Review" as const, id: "LIST" },
+        { type: "Product" as const, id: "LIST" },
+        { type: "User" as const },
       ],
     }),
 
@@ -125,9 +133,14 @@ export const reviewApi = baseApi.injectEndpoints({
     deleteReview: builder.mutation<ApiResponse<void>, number>({
       query: (reviewId) => ({
         url: `/reviews/${reviewId}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Product', 'User'],
+      invalidatesTags: [
+        { type: "Review" as const, id: "LIST" },
+        { type: "Review" as const, id: "MY_LIST" },
+        { type: "Product" as const, id: "LIST" },
+        { type: "User" as const },
+      ],
     }),
 
     // Get all reviews (Admin only)
@@ -139,17 +152,17 @@ export const reviewApi = baseApi.injectEndpoints({
         const queryParams = new URLSearchParams();
 
         Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== '') {
+          if (value !== undefined && value !== null && value !== "") {
             queryParams.append(key, String(value));
           }
         });
 
         return {
-          url: `/reviews${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
-          method: 'GET',
+          url: `/reviews${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
+          method: "GET",
         };
       },
-      providesTags: ['Product'],
+      providesTags: [{ type: "Review" as const, id: "LIST" }],
     }),
 
     // Approve/Disapprove a review (Admin only)
@@ -159,10 +172,13 @@ export const reviewApi = baseApi.injectEndpoints({
     >({
       query: ({ reviewId, isApproved }) => ({
         url: `/reviews/${reviewId}/approve`,
-        method: 'PUT',
+        method: "PUT",
         body: { isApproved },
       }),
-      invalidatesTags: ['Product'],
+      invalidatesTags: [
+        { type: "Review" as const, id: "LIST" },
+        { type: "Product" as const, id: "LIST" },
+      ],
     }),
   }),
 });

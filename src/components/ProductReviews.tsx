@@ -1,19 +1,28 @@
-import React, { useState } from 'react';
-import { Star, ThumbsUp, Edit, Trash2, MessageSquare } from 'lucide-react';
-import { toast } from 'sonner';
+import React, { useState } from "react";
+import { Star, ThumbsUp, Edit, Trash2, MessageSquare } from "lucide-react";
+import { toast } from "sonner";
 import {
   useGetProductReviewsQuery,
   useCreateReviewMutation,
   useUpdateReviewMutation,
   useDeleteReviewMutation,
   Review,
-} from '../services/api/reviewApi';
-import { useAppSelector } from '../store/hooks';
-import { selectCurrentUser, selectIsAuthenticated } from '../store/slices/authSlice';
-import { extractErrorMessage } from '../utils/authHelpers';
-import { Button } from './ui/button';
-import { Textarea } from './ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
+} from "../services/api/reviewApi";
+import { useAppSelector } from "../store/hooks";
+import {
+  selectCurrentUser,
+  selectIsAuthenticated,
+} from "../store/slices/authSlice";
+import { extractErrorMessage } from "../utils/authHelpers";
+import { Button } from "./ui/button";
+import { Textarea } from "./ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "./ui/card";
 import {
   Dialog,
   DialogContent,
@@ -21,15 +30,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from './ui/dialog';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+} from "./ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 interface ProductReviewsProps {
   productId: number;
   productName: string;
 }
 
-export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, productName }) => {
+export const ProductReviews: React.FC<ProductReviewsProps> = ({
+  productId,
+  productName,
+}) => {
   const [page, setPage] = useState(1);
   const [isAddReviewOpen, setIsAddReviewOpen] = useState(false);
   const [isEditReviewOpen, setIsEditReviewOpen] = useState(false);
@@ -40,7 +52,11 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
   const currentUser = useAppSelector(selectCurrentUser);
 
   // Queries and mutations
-  const { data: reviewsData, isLoading, refetch } = useGetProductReviewsQuery({
+  const {
+    data: reviewsData,
+    isLoading,
+    refetch,
+  } = useGetProductReviewsQuery({
     productId,
     page,
     limit: 10,
@@ -53,17 +69,16 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
   // Form state
   const [reviewForm, setReviewForm] = useState({
     rating: 5,
-    comment: '',
+    comment: "",
   });
 
   // Check if current user has already reviewed
   const userReview = reviewsData?.data?.find(
-    (review) => review.userId === currentUser?.id
+    (review) => review.userId === currentUser?.id,
   );
-
   // Reset form
   const resetForm = () => {
-    setReviewForm({ rating: 5, comment: '' });
+    setReviewForm({ rating: 5, comment: "" });
   };
 
   // Handle create review
@@ -71,12 +86,12 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
     e.preventDefault();
 
     if (!isAuthenticated) {
-      toast.error('Please login to leave a review');
+      toast.error("Please login to leave a review");
       return;
     }
 
     if (!reviewForm.comment.trim()) {
-      toast.error('Please write a comment');
+      toast.error("Please write a comment");
       return;
     }
 
@@ -87,7 +102,7 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
         comment: reviewForm.comment,
       }).unwrap();
 
-      toast.success('Review added successfully!');
+      toast.success("Review added successfully!");
       setIsAddReviewOpen(false);
       resetForm();
       refetch();
@@ -111,7 +126,7 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
         },
       }).unwrap();
 
-      toast.success('Review updated successfully!');
+      toast.success("Review updated successfully!");
       setIsEditReviewOpen(false);
       setSelectedReview(null);
       resetForm();
@@ -127,7 +142,7 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
 
     try {
       await deleteReview(selectedReview.id).unwrap();
-      toast.success('Review deleted successfully!');
+      toast.success("Review deleted successfully!");
       setIsDeleteDialogOpen(false);
       setSelectedReview(null);
       refetch();
@@ -141,7 +156,7 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
     setSelectedReview(review);
     setReviewForm({
       rating: review.rating,
-      comment: review.comment || '',
+      comment: review.comment || "",
     });
     setIsEditReviewOpen(true);
   };
@@ -153,16 +168,24 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
   };
 
   // Render star rating
-  const renderStars = (rating: number, interactive: boolean = false, onRatingChange?: (rating: number) => void) => {
+  const renderStars = (
+    rating: number,
+    interactive: boolean = false,
+    onRatingChange?: (rating: number) => void,
+  ) => {
     return (
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
             className={`w-5 h-5 ${
-              star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-            } ${interactive ? 'cursor-pointer hover:fill-yellow-300 hover:text-yellow-300' : ''}`}
-            onClick={() => interactive && onRatingChange && onRatingChange(star)}
+              star <= rating
+                ? "fill-yellow-400 text-yellow-400"
+                : "text-gray-300"
+            } ${interactive ? "cursor-pointer hover:fill-yellow-300 hover:text-yellow-300" : ""}`}
+            onClick={() =>
+              interactive && onRatingChange && onRatingChange(star)
+            }
           />
         ))}
       </div>
@@ -173,11 +196,14 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
   const getRatingStats = () => {
     if (!reviewsData?.ratingDistribution) return null;
 
-    const total = Object.values(reviewsData.ratingDistribution).reduce((a, b) => a + b, 0);
+    const total = Object.values(reviewsData.ratingDistribution).reduce(
+      (a, b) => a + b,
+      0,
+    );
     const average =
       Object.entries(reviewsData.ratingDistribution).reduce(
         (sum, [rating, count]) => sum + parseInt(rating) * count,
-        0
+        0,
       ) / (total || 1);
 
     return { total, average: average.toFixed(1) };
@@ -187,10 +213,10 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
 
   // Format date
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -208,17 +234,24 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
               {/* Average Rating */}
               <div className="flex flex-col items-center justify-center border-r pr-6">
                 <div className="text-5xl font-bold">{stats.average}</div>
-                <div className="flex mt-2">{renderStars(Math.round(parseFloat(stats.average)))}</div>
+                <div className="flex mt-2">
+                  {renderStars(Math.round(parseFloat(stats.average)))}
+                </div>
                 <div className="text-sm text-muted-foreground mt-1">
-                  Based on {stats.total} {stats.total === 1 ? 'review' : 'reviews'}
+                  Based on {stats.total}{" "}
+                  {stats.total === 1 ? "review" : "reviews"}
                 </div>
               </div>
 
               {/* Rating Distribution */}
               <div className="flex-1 space-y-2">
                 {[5, 4, 3, 2, 1].map((star) => {
-                  const count = reviewsData?.ratingDistribution?.[star as keyof typeof reviewsData.ratingDistribution] || 0;
-                  const percentage = stats.total > 0 ? (count / stats.total) * 100 : 0;
+                  const count =
+                    reviewsData?.ratingDistribution?.[
+                      star as keyof typeof reviewsData.ratingDistribution
+                    ] || 0;
+                  const percentage =
+                    stats.total > 0 ? (count / stats.total) * 100 : 0;
 
                   return (
                     <div key={star} className="flex items-center gap-2">
@@ -242,7 +275,10 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
           {/* Add Review Button */}
           {isAuthenticated && !userReview && (
             <div className="mt-6">
-              <Button onClick={() => setIsAddReviewOpen(true)} className="w-full md:w-auto">
+              <Button
+                onClick={() => setIsAddReviewOpen(true)}
+                className="w-full md:w-auto"
+              >
                 <MessageSquare className="w-4 h-4 mr-2" />
                 Write a Review
               </Button>
@@ -295,7 +331,12 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
                   <div className="flex gap-4">
                     {/* User Avatar */}
                     <Avatar>
-                      <AvatarImage src={review.user.profileImage || undefined} />
+                      <AvatarImage
+                        src={
+                          import.meta.env.VITE_API_URL +
+                            review.user.profileImage || undefined
+                        }
+                      />
                       <AvatarFallback>
                         {review.user.name.charAt(0).toUpperCase()}
                       </AvatarFallback>
@@ -322,34 +363,37 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
             ))}
 
             {/* Pagination */}
-            {reviewsData.pagination && reviewsData.pagination.totalPages > 1 && (
-              <div className="flex justify-center gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                >
-                  Previous
-                </Button>
-                <span className="flex items-center px-4">
-                  Page {reviewsData.pagination.currentPage} of{' '}
-                  {reviewsData.pagination.totalPages}
-                </span>
-                <Button
-                  variant="outline"
-                  onClick={() => setPage((p) => p + 1)}
-                  disabled={page >= reviewsData.pagination.totalPages}
-                >
-                  Next
-                </Button>
-              </div>
-            )}
+            {reviewsData.pagination &&
+              reviewsData.pagination.totalPages > 1 && (
+                <div className="flex justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                  >
+                    Previous
+                  </Button>
+                  <span className="flex items-center px-4">
+                    Page {reviewsData.pagination.currentPage} of{" "}
+                    {reviewsData.pagination.totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    onClick={() => setPage((p) => p + 1)}
+                    disabled={page >= reviewsData.pagination.totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
           </>
         ) : (
           <Card>
             <CardContent className="py-12 text-center">
               <MessageSquare className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-              <p className="text-gray-600">No reviews yet. Be the first to review!</p>
+              <p className="text-gray-600">
+                No reviews yet. Be the first to review!
+              </p>
             </CardContent>
           </Card>
         )}
@@ -360,24 +404,31 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Write a Review</DialogTitle>
-            <DialogDescription>Share your experience with {productName}</DialogDescription>
+            <DialogDescription>
+              Share your experience with {productName}
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleCreateReview}>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">Rating</label>
                 {renderStars(reviewForm.rating, true, (rating) =>
-                  setReviewForm({ ...reviewForm, rating })
+                  setReviewForm({ ...reviewForm, rating }),
                 )}
               </div>
               <div>
-                <label htmlFor="comment" className="block text-sm font-medium mb-2">
+                <label
+                  htmlFor="comment"
+                  className="block text-sm font-medium mb-2"
+                >
                   Your Review
                 </label>
                 <Textarea
                   id="comment"
                   value={reviewForm.comment}
-                  onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                  onChange={(e) =>
+                    setReviewForm({ ...reviewForm, comment: e.target.value })
+                  }
                   placeholder="Share your thoughts about this product..."
                   rows={5}
                   required
@@ -397,7 +448,7 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
                 Cancel
               </Button>
               <Button type="submit" disabled={isCreating}>
-                {isCreating ? 'Submitting...' : 'Submit Review'}
+                {isCreating ? "Submitting..." : "Submit Review"}
               </Button>
             </DialogFooter>
           </form>
@@ -409,24 +460,31 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Your Review</DialogTitle>
-            <DialogDescription>Update your review for {productName}</DialogDescription>
+            <DialogDescription>
+              Update your review for {productName}
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleUpdateReview}>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">Rating</label>
                 {renderStars(reviewForm.rating, true, (rating) =>
-                  setReviewForm({ ...reviewForm, rating })
+                  setReviewForm({ ...reviewForm, rating }),
                 )}
               </div>
               <div>
-                <label htmlFor="edit-comment" className="block text-sm font-medium mb-2">
+                <label
+                  htmlFor="edit-comment"
+                  className="block text-sm font-medium mb-2"
+                >
                   Your Review
                 </label>
                 <Textarea
                   id="edit-comment"
                   value={reviewForm.comment}
-                  onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                  onChange={(e) =>
+                    setReviewForm({ ...reviewForm, comment: e.target.value })
+                  }
                   placeholder="Share your thoughts about this product..."
                   rows={5}
                   required
@@ -447,7 +505,7 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
                 Cancel
               </Button>
               <Button type="submit" disabled={isUpdating}>
-                {isUpdating ? 'Updating...' : 'Update Review'}
+                {isUpdating ? "Updating..." : "Update Review"}
               </Button>
             </DialogFooter>
           </form>
@@ -460,7 +518,8 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
           <DialogHeader>
             <DialogTitle>Delete Review</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete your review? This action cannot be undone.
+              Are you sure you want to delete your review? This action cannot be
+              undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -479,7 +538,7 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
               onClick={handleDeleteReview}
               disabled={isDeleting}
             >
-              {isDeleting ? 'Deleting...' : 'Delete'}
+              {isDeleting ? "Deleting..." : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>

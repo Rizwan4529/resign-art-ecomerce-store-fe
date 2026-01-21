@@ -42,7 +42,7 @@ export const Checkout = () => {
     undefined,
     {
       skip: !isAuthenticated,
-    }
+    },
   );
   const [createOrder, { isLoading: isCreatingOrder }] =
     useCreateOrderMutation();
@@ -62,7 +62,7 @@ export const Checkout = () => {
   const items = cartData?.data?.items || [];
   console.log("Items 213213213213", items);
   const subtotal = parseFloat(cartData?.data?.summary?.subtotal || "0");
-  const shippingCost = subtotal >= 5000 ? 0 : 500; // Free shipping for orders >= 5000
+  const shippingCost = 20; // Fixed shipping cost of $20
   const taxRate = 0.08;
   const tax = subtotal * taxRate;
   const grandTotal = subtotal + shippingCost + tax;
@@ -263,8 +263,18 @@ export const Checkout = () => {
                       id="shippingPhone"
                       type="tel"
                       value={shippingPhone}
-                      onChange={(e) => setShippingPhone(e.target.value)}
-                      placeholder="+92-300-1234567"
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Only allow digits and + character, max 13 digits
+                        const phoneRegex = /^[0-9+]*$/;
+                        const digitCount = value.replace(/\D/g, "").length;
+                        if (phoneRegex.test(value) && digitCount <= 13) {
+                          setShippingPhone(value);
+                        }
+                      }}
+                      placeholder="+923001234567"
+                      title="Phone number can contain up to 13 digits"
+                      maxLength={16}
                       required
                     />
                   </div>
@@ -432,6 +442,26 @@ export const Checkout = () => {
                               const value = e.target.value;
                               // Remove all non-digits
                               const digitsOnly = value.replace(/\D/g, "");
+
+                              // Validate month (01-12)
+                              if (digitsOnly.length >= 1) {
+                                const firstDigit = parseInt(digitsOnly[0], 10);
+                                // First digit can only be 0 or 1
+                                if (firstDigit > 1) {
+                                  return;
+                                }
+                              }
+                              if (digitsOnly.length >= 2) {
+                                const month = parseInt(
+                                  digitsOnly.slice(0, 2),
+                                  10,
+                                );
+                                // Month must be between 01 and 12
+                                if (month < 1 || month > 12) {
+                                  return;
+                                }
+                              }
+
                               // Format as MM/YY
                               let formatted = digitsOnly;
                               if (digitsOnly.length >= 2) {
@@ -565,13 +595,7 @@ export const Checkout = () => {
                   </div>
                   <div className="flex justify-between">
                     <span>Shipping</span>
-                    <span
-                      className={shippingCost === 0 ? "text-green-600" : ""}
-                    >
-                      {shippingCost === 0
-                        ? "Free"
-                        : `$${shippingCost.toFixed(2)}`}
-                    </span>
+                    <span>${shippingCost.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Tax (8%)</span>
@@ -585,15 +609,6 @@ export const Checkout = () => {
                     </span>
                   </div>
                 </div>
-
-                {subtotal < 5000 && (
-                  <div className="bg-orange-50 p-3 rounded-lg">
-                    <p className="text-sm text-orange-800">
-                      Add ${(5000 - subtotal).toFixed(2)} more for free
-                      shipping!
-                    </p>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </div>

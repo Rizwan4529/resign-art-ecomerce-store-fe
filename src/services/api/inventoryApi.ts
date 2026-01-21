@@ -1,5 +1,5 @@
-import { baseApi } from './baseApi';
-import { ApiResponse } from './types';
+import { baseApi } from "./baseApi";
+import { ApiResponse } from "./types";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -100,12 +100,12 @@ export interface GetInventoryParams {
   category?: string;
   lowStock?: boolean;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 
 export interface UpdateInventoryRequest {
   quantity: number;
-  operation: 'set' | 'add' | 'subtract';
+  operation: "set" | "add" | "subtract";
   reason: string;
 }
 
@@ -129,23 +129,26 @@ export const inventoryApi = baseApi.injectEndpoints({
         const queryParams = new URLSearchParams();
 
         Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== '') {
+          if (value !== undefined && value !== null && value !== "") {
             queryParams.append(key, String(value));
           }
         });
 
         return {
-          url: `/inventory${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
-          method: 'GET',
+          url: `/inventory${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
+          method: "GET",
         };
       },
       providesTags: (result) =>
         result?.data
           ? [
-              ...result.data.map(({ id }) => ({ type: 'Inventory' as const, id })),
-              { type: 'Inventory' as const, id: 'LIST' },
+              ...result.data.map(({ id }) => ({
+                type: "Inventory" as const,
+                id,
+              })),
+              { type: "Inventory" as const, id: "LIST" },
             ]
-          : [{ type: 'Inventory' as const, id: 'LIST' }],
+          : [{ type: "Inventory" as const, id: "LIST" }],
     }),
 
     // Get inventory change history for a product
@@ -155,16 +158,16 @@ export const inventoryApi = baseApi.injectEndpoints({
     >({
       query: ({ productId, page, limit }) => {
         const queryParams = new URLSearchParams();
-        if (page) queryParams.append('page', String(page));
-        if (limit) queryParams.append('limit', String(limit));
+        if (page) queryParams.append("page", String(page));
+        if (limit) queryParams.append("limit", String(limit));
 
         return {
-          url: `/inventory/history/${productId}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
-          method: 'GET',
+          url: `/inventory/history/${productId}${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
+          method: "GET",
         };
       },
       providesTags: (result, error, { productId }) => [
-        { type: 'Inventory' as const, id: productId },
+        { type: "Inventory" as const, id: productId },
       ],
     }),
 
@@ -175,13 +178,16 @@ export const inventoryApi = baseApi.injectEndpoints({
     >({
       query: ({ productId, data }) => ({
         url: `/inventory/${productId}`,
-        method: 'PUT',
+        method: "PUT",
         body: data,
       }),
       invalidatesTags: (result, error, { productId }) => [
-        { type: 'Inventory' as const, id: productId },
-        { type: 'Inventory' as const, id: 'LIST' },
-        { type: 'Product' as const, id: productId },
+        { type: "Inventory" as const, id: productId },
+        { type: "Inventory" as const, id: "LIST" },
+        { type: "InventoryAlert" as const, id: "ALERTS" },
+        { type: "Product" as const, id: productId },
+        { type: "Product" as const, id: "LIST" },
+        { type: "SalesReport" as const, id: "REPORT" },
       ],
     }),
 
@@ -193,37 +199,40 @@ export const inventoryApi = baseApi.injectEndpoints({
       query: (params = {}) => {
         const queryParams = new URLSearchParams();
         if (params.threshold) {
-          queryParams.append('threshold', String(params.threshold));
+          queryParams.append("threshold", String(params.threshold));
         }
 
         return {
-          url: `/inventory/alerts${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
-          method: 'GET',
+          url: `/inventory/alerts${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
+          method: "GET",
         };
       },
-      providesTags: [{ type: 'Inventory' as const, id: 'ALERTS' }],
+      providesTags: [{ type: "InventoryAlert" as const, id: "ALERTS" }],
     }),
 
     // Get sales report data (JSON)
-    getSalesReport: builder.query<ApiResponse<SalesReportData>, SalesReportRequest>({
+    getSalesReport: builder.query<
+      ApiResponse<SalesReportData>,
+      SalesReportRequest
+    >({
       query: ({ startDate, endDate }) => {
         const queryParams = new URLSearchParams();
-        queryParams.append('startDate', startDate);
-        queryParams.append('endDate', endDate);
+        queryParams.append("startDate", startDate);
+        queryParams.append("endDate", endDate);
 
         return {
           url: `/reports/sales?${queryParams.toString()}`,
-          method: 'GET',
+          method: "GET",
         };
       },
-      providesTags: [{ type: 'SalesReport' as const, id: 'REPORT' }],
+      providesTags: [{ type: "SalesReport" as const, id: "REPORT" }],
     }),
 
     // Generate and download PDF sales report
     downloadSalesPDF: builder.mutation<Blob, SalesReportRequest>({
       query: ({ startDate, endDate }) => ({
-        url: '/reports/sales/pdf',
-        method: 'POST',
+        url: "/reports/sales/pdf",
+        method: "POST",
         body: { startDate, endDate },
         responseHandler: async (response) => {
           return await response.blob();

@@ -1,19 +1,36 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Star, ShoppingCart, Heart, Share2, Minus, Plus, ArrowLeft } from 'lucide-react';
-import { toast } from 'sonner';
-import { Product, useGetProductByIdQuery, useGetProductsByCategoryQuery } from '../services/api/productApi';
-import { useAddToCartMutation } from '../services/api/cartApi';
-import { Button } from '../components/ui/button';
-import { Badge } from '../components/ui/badge';
-import { Separator } from '../components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Product3DViewer } from '../components/Product/Product3DViewer';
-import { ProductCard } from '../components/Product/ProductCard';
-import { ProductReviews } from '../components/ProductReviews';
-import { ImageWithFallback } from '../components/figma/ImageWithFallback';
-import { extractErrorMessage } from '../utils/authHelpers';
-import { getImageUrl } from '../utils/imageUtils';
+import React, { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  Star,
+  ShoppingCart,
+  Heart,
+  Share2,
+  Minus,
+  Plus,
+  ArrowLeft,
+} from "lucide-react";
+import { toast } from "sonner";
+import {
+  Product,
+  useGetProductByIdQuery,
+  useGetProductsByCategoryQuery,
+} from "../services/api/productApi";
+import { useAddToCartMutation } from "../services/api/cartApi";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
+import { Separator } from "../components/ui/separator";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
+import { Product3DViewer } from "../components/Product/Product3DViewer";
+import { ProductCard } from "../components/Product/ProductCard";
+import { ProductReviews } from "../components/ProductReviews";
+import { ImageWithFallback } from "../components/figma/ImageWithFallback";
+import { extractErrorMessage } from "../utils/authHelpers";
+import { getImageUrl } from "../utils/imageUtils";
 
 export const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,7 +41,11 @@ export const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
 
   // RTK Query hooks
-  const { data: productData, isLoading, error } = useGetProductByIdQuery(Number(id), {
+  const {
+    data: productData,
+    isLoading,
+    error,
+  } = useGetProductByIdQuery(Number(id), {
     skip: !id,
   });
 
@@ -33,19 +54,20 @@ export const ProductDetail = () => {
   // Load related products from same category
   const { data: relatedProductsData } = useGetProductsByCategoryQuery(
     {
-      category: product?.category || '',
+      category: product?.category || "",
       limit: 5,
     },
     {
       skip: !product?.category,
-    }
+    },
   );
 
-  const relatedProducts = relatedProductsData?.data.filter((p) => p.id !== Number(id)) || [];
+  const relatedProducts =
+    relatedProductsData?.data.filter((p) => p.id !== Number(id)) || [];
 
   // Handle error or missing product
   if (error || (!isLoading && !product)) {
-    navigate('/shop');
+    navigate("/shop");
     return null;
   }
 
@@ -58,11 +80,11 @@ export const ProductDetail = () => {
         quantity,
       }).unwrap();
 
-      toast.success('Added to cart!', {
+      toast.success("Added to cart!", {
         description: `${quantity} x ${product.name}`,
       });
     } catch (error) {
-      toast.error('Failed to add to cart', {
+      toast.error("Failed to add to cart", {
         description: extractErrorMessage(error),
       });
     }
@@ -77,9 +99,9 @@ export const ProductDetail = () => {
         quantity,
       }).unwrap();
 
-      navigate('/checkout');
+      navigate("/checkout");
     } catch (error) {
-      toast.error('Failed to add to cart', {
+      toast.error("Failed to add to cart", {
         description: extractErrorMessage(error),
       });
     }
@@ -106,8 +128,10 @@ export const ProductDetail = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Product not found</h1>
-          <Button onClick={() => navigate('/shop')}>Back to Shop</Button>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            Product not found
+          </h1>
+          <Button onClick={() => navigate("/shop")}>Back to Shop</Button>
         </div>
       </div>
     );
@@ -126,7 +150,10 @@ export const ProductDetail = () => {
           {/* Product Images */}
           <div className="space-y-4">
             {/* 3D Viewer */}
-            <Product3DViewer images={product.images || []} productName={product.name} />
+            <Product3DViewer
+              images={product.images || []}
+              productName={product.name}
+            />
 
             {/* Thumbnail Images */}
             {product.images && product.images.length > 0 && (
@@ -136,7 +163,9 @@ export const ProductDetail = () => {
                     key={index}
                     onClick={() => setSelectedImage(index)}
                     className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
-                      selectedImage === index ? 'border-blue-500' : 'border-gray-200'
+                      selectedImage === index
+                        ? "border-blue-500"
+                        : "border-gray-200"
                     }`}
                   >
                     <ImageWithFallback
@@ -156,34 +185,55 @@ export const ProductDetail = () => {
               <div className="flex items-center space-x-2 mb-2">
                 <Badge variant="secondary">{product.category}</Badge>
                 {product.stock <= 5 && product.stock > 0 && (
-                  <Badge variant="destructive">Only {product.stock} left!</Badge>
+                  <Badge variant="destructive">
+                    Only {product.stock} left!
+                  </Badge>
                 )}
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {product.name}
+              </h1>
               {/* Rating and Reviews - only show if available */}
-              {(product.averageRating && parseFloat(product.averageRating.toString()) > 0) || (product.totalReviews && product.totalReviews > 0) ? (
+              {(product.averageRating &&
+                parseFloat(product.averageRating.toString()) > 0) ||
+              (product.totalReviews && product.totalReviews > 0) ? (
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
                         className={`w-5 h-5 ${
-                          i < Math.floor(parseFloat(product.averageRating?.toString() || '0'))
-                            ? 'text-yellow-400 fill-current'
-                            : 'text-gray-300'
+                          i <
+                          Math.floor(
+                            parseFloat(
+                              product.averageRating?.toString() || "0",
+                            ),
+                          )
+                            ? "text-yellow-400 fill-current"
+                            : "text-gray-300"
                         }`}
                       />
                     ))}
                   </div>
                   <span className="text-gray-600">
-                    {parseFloat(product.averageRating?.toString() || '0').toFixed(1)} ({product.totalReviews || 0} reviews)
+                    {parseFloat(
+                      product.averageRating?.toString() || "0",
+                    ).toFixed(1)}{" "}
+                    ({product.totalReviews || 0} reviews)
                   </span>
                 </div>
               ) : null}
             </div>
 
             <div className="text-3xl font-bold text-blue-600">
-              ${typeof product.price === 'string' ? product.price : product.price.toFixed(2)}
+              $
+              {product?.discountPrice
+                ? typeof product.discountPrice === "string"
+                  ? product.discountPrice
+                  : product.discountPrice.toFixed(2)
+                : typeof product.price === "string"
+                  ? product.price
+                  : product.price.toFixed(2)}
             </div>
 
             <p className="text-gray-700 leading-relaxed justify-text">
@@ -218,7 +268,9 @@ export const ProductDetail = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                    onClick={() =>
+                      setQuantity(Math.min(product.stock, quantity + 1))
+                    }
                     disabled={quantity >= product.stock}
                   >
                     <Plus className="w-4 h-4" />
@@ -236,7 +288,7 @@ export const ProductDetail = () => {
                   className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                 >
                   <ShoppingCart className="w-4 h-4 mr-2" />
-                  {isAddingToCart ? 'Adding...' : 'Add to Cart'}
+                  {isAddingToCart ? "Adding..." : "Add to Cart"}
                 </Button>
                 <Button
                   onClick={handleBuyNow}
@@ -244,17 +296,10 @@ export const ProductDetail = () => {
                   variant="outline"
                   className="flex-1"
                 >
-                  {isAddingToCart ? 'Adding...' : 'Buy Now'}
-                </Button>
-                <Button variant="outline" size="icon">
-                  <Heart className="w-4 h-4" />
-                </Button>
-                <Button variant="outline" size="icon">
-                  <Share2 className="w-4 h-4" />
+                  {isAddingToCart ? "Adding..." : "Buy Now"}
                 </Button>
               </div>
             </div>
-
           </div>
         </div>
 
@@ -268,10 +313,13 @@ export const ProductDetail = () => {
 
           <TabsContent value="details">
             <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-              <h3 className="text-lg font-semibold mb-4">Product Specifications</h3>
+              <h3 className="text-lg font-semibold mb-4">
+                Product Specifications
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <strong>Category:</strong> {product.category.replace('_', ' ')}
+                  <strong>Category:</strong>{" "}
+                  {product.category.replace("_", " ")}
                 </div>
                 <div>
                   <strong>Stock:</strong> {product.stock} available
@@ -281,14 +329,18 @@ export const ProductDetail = () => {
                     <strong>Brand:</strong> {product.brand}
                   </div>
                 )}
-                {product.averageRating && parseFloat(product.averageRating.toString()) > 0 && (
-                  <div>
-                    <strong>Rating:</strong> {parseFloat(product.averageRating.toString()).toFixed(1)}/5.0
-                  </div>
-                )}
+                {product.averageRating &&
+                  parseFloat(product.averageRating.toString()) > 0 && (
+                    <div>
+                      <strong>Rating:</strong>{" "}
+                      {parseFloat(product.averageRating.toString()).toFixed(1)}
+                      /5.0
+                    </div>
+                  )}
                 {product.createdAt && (
                   <div>
-                    <strong>Created:</strong> {new Date(product.createdAt).toLocaleDateString()}
+                    <strong>Created:</strong>{" "}
+                    {new Date(product.createdAt).toLocaleDateString()}
                   </div>
                 )}
                 {product.isFeatured && (
@@ -304,17 +356,22 @@ export const ProductDetail = () => {
               </div>
               <Separator className="my-4" />
               <div>
-                <strong>Materials:</strong> High-quality resin, pigments, and protective coating
+                <strong>Materials:</strong> High-quality resin, pigments, and
+                protective coating
               </div>
               <div className="mt-2">
-                <strong>Care Instructions:</strong> Clean with a soft, damp cloth. Avoid harsh chemicals.
+                <strong>Care Instructions:</strong> Clean with a soft, damp
+                cloth. Avoid harsh chemicals.
               </div>
             </div>
           </TabsContent>
 
           <TabsContent value="reviews">
             <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-              <ProductReviews productId={product.id} productName={product.name} />
+              <ProductReviews
+                productId={product.id}
+                productName={product.name}
+              />
             </div>
           </TabsContent>
 
@@ -348,7 +405,9 @@ export const ProductDetail = () => {
         {/* Related Products */}
         {relatedProducts.length > 0 && (
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">Related Products</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-8">
+              Related Products
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedProducts.map((relatedProduct) => (
                 <ProductCard key={relatedProduct.id} product={relatedProduct} />

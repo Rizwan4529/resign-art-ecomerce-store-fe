@@ -12,6 +12,7 @@ import {
   Phone,
   Info,
   Loader2,
+  Bell,
 } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -24,6 +25,7 @@ import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 import { useSearchProductsQuery } from "../../services/api/productApi";
+import { useGetNotificationsQuery } from "../../services/api/notificationApi";
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -37,6 +39,13 @@ export const Navbar = () => {
   const { itemCount } = useCart();
   const navigate = useNavigate();
 
+  // Fetch notifications for logged-in users
+  const { data: notificationsData } = useGetNotificationsQuery(
+    { page: 1, limit: 10 },
+    { skip: !user },
+  );
+  const unreadCount = notificationsData?.unreadCount || 0;
+
   // Debounce search query to avoid too many API calls
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -47,15 +56,19 @@ export const Navbar = () => {
   }, [searchQuery]);
 
   // Fetch search results when user types (only if query has at least 2 characters)
-  const { data: searchResults, isLoading: isSearching } = useSearchProductsQuery(
-    { q: debouncedSearchQuery, limit: 5 },
-    { skip: debouncedSearchQuery.length < 2 }
-  );
+  const { data: searchResults, isLoading: isSearching } =
+    useSearchProductsQuery(
+      { q: debouncedSearchQuery, limit: 5 },
+      { skip: debouncedSearchQuery.length < 2 },
+    );
 
   // Handle click outside to close search dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
         setShowSearchDropdown(false);
       }
     };
@@ -93,8 +106,16 @@ export const Navbar = () => {
     { href: "/shop", label: "Shop", icon: Package },
     // { href: '/categories', label: 'Categories', icon: Palette },
     { href: "/about", label: "About", icon: Info },
-    { href: "/contact", label: "Contact", icon: Phone },
+    { href: "/contact", label: "Contact", icon: Phone, hideForAdmin: true },
   ];
+
+  // Filter nav links based on user role
+  const filteredNavLinks = navLinks.filter((link) => {
+    if (link.hideForAdmin && user?.role === "ADMIN") {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <nav
@@ -116,7 +137,7 @@ export const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map(({ href, label }) => (
+            {filteredNavLinks.map(({ href, label }) => (
               <Link
                 key={href}
                 to={href}
@@ -215,6 +236,21 @@ export const Navbar = () => {
 
           {/* Right Side Icons */}
           <div className="flex items-center space-x-4">
+            {/* Notifications - Only show when logged in and NOT admin (admins see notifications in admin dashboard) */}
+            {user && user.role !== "ADMIN" && (
+              <Link
+                to="/notifications"
+                className="relative p-2 text-white hover:text-blue-700 transition-colors"
+              >
+                <Bell className="w-6 h-6" />
+                {unreadCount > 0 && (
+                  <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs min-w-[1.25rem] h-5 flex items-center justify-center">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </Badge>
+                )}
+              </Link>
+            )}
+
             {/* Cart */}
             <Link
               to="/cart"
@@ -265,6 +301,19 @@ export const Navbar = () => {
                     >
                       My Orders
                     </Link>
+                    {user.role !== "ADMIN" && (
+                      <Link
+                        to="/notifications"
+                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md"
+                      >
+                        Notifications
+                        {unreadCount > 0 && (
+                          <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium bg-red-100 text-red-800 rounded-full">
+                            {unreadCount}
+                          </span>
+                        )}
+                      </Link>
+                    )}
                     {user.role === "ADMIN" && (
                       <Link
                         to="/admin"
@@ -318,7 +367,7 @@ export const Navbar = () => {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-white/20">
             <div className="space-y-2">
-              {navLinks.map(({ href, label, icon: Icon }) => (
+              {filteredNavLinks.map(({ href, label, icon: Icon }) => (
                 <Link
                   key={href}
                   to={href}

@@ -1,17 +1,37 @@
-import { baseApi } from './baseApi';
-import { ApiResponse } from './types';
+import { baseApi } from "./baseApi";
+import { ApiResponse } from "./types";
 
 // Order Status enum
-export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+export type OrderStatus =
+  | "PENDING"
+  | "CONFIRMED"
+  | "PROCESSING"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "CANCELLED";
 
 // Payment Status enum
-export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED';
+export type PaymentStatus = "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
 
 // Payment Method enum
-export type PaymentMethod = 'CREDIT_CARD' | 'DEBIT_CARD' | 'EASYPAISA' | 'JAZZCASH' | 'BANK_TRANSFER' | 'COD';
+export type PaymentMethod =
+  | "CREDIT_CARD"
+  | "DEBIT_CARD"
+  | "EASYPAISA"
+  | "JAZZCASH"
+  | "BANK_TRANSFER"
+  | "COD";
 
 // Delivery Status enum
-export type DeliveryStatus = 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'IN_TRANSIT' | 'OUT_FOR_DELIVERY' | 'DELIVERED' | 'FAILED' | 'RETURNED';
+export type DeliveryStatus =
+  | "PENDING"
+  | "PROCESSING"
+  | "SHIPPED"
+  | "IN_TRANSIT"
+  | "OUT_FOR_DELIVERY"
+  | "DELIVERED"
+  | "FAILED"
+  | "RETURNED";
 
 // Order Item interface
 export interface OrderItem {
@@ -87,6 +107,7 @@ export interface Order {
   payment?: Payment;
   delivery?: Delivery;
   trackingHistory?: OrderTracking[];
+  currentLocation?: string | null;
   orderedAt: string;
   confirmedAt?: string | null;
   shippedAt?: string | null;
@@ -146,11 +167,11 @@ export const orderApi = baseApi.injectEndpoints({
     // Create/Confirm order (5.5.1)
     createOrder: builder.mutation<ApiResponse<Order>, CreateOrderRequest>({
       query: (data) => ({
-        url: '/orders',
-        method: 'POST',
+        url: "/orders",
+        method: "POST",
         body: data,
       }),
-      invalidatesTags: ['Order', 'Cart'],
+      invalidatesTags: ["Order", "Cart"],
     }),
 
     // Get user's orders
@@ -158,23 +179,23 @@ export const orderApi = baseApi.injectEndpoints({
       query: (params = {}) => {
         const queryParams = new URLSearchParams();
 
-        if (params.status) queryParams.append('status', params.status);
-        if (params.page) queryParams.append('page', String(params.page));
-        if (params.limit) queryParams.append('limit', String(params.limit));
-        if (params.sort) queryParams.append('sort', params.sort);
+        if (params.status) queryParams.append("status", params.status);
+        if (params.page) queryParams.append("page", String(params.page));
+        if (params.limit) queryParams.append("limit", String(params.limit));
+        if (params.sort) queryParams.append("sort", params.sort);
 
         return {
-          url: `/orders/my-orders${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
-          method: 'GET',
+          url: `/orders/my-orders${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
+          method: "GET",
         };
       },
       providesTags: (result) =>
         result
           ? [
-              ...result.data.map(({ id }) => ({ type: 'Order' as const, id })),
-              { type: 'Order', id: 'LIST' },
+              ...result.data.map(({ id }) => ({ type: "Order" as const, id })),
+              { type: "Order", id: "LIST" },
             ]
-          : [{ type: 'Order', id: 'LIST' }],
+          : [{ type: "Order", id: "LIST" }],
     }),
 
     // Get all orders (Admin only)
@@ -182,69 +203,96 @@ export const orderApi = baseApi.injectEndpoints({
       query: (params = {}) => {
         const queryParams = new URLSearchParams();
 
-        if (params.status) queryParams.append('status', params.status);
-        if (params.page) queryParams.append('page', String(params.page));
-        if (params.limit) queryParams.append('limit', String(params.limit));
-        if (params.sort) queryParams.append('sort', params.sort);
+        if (params.status) queryParams.append("status", params.status);
+        if (params.page) queryParams.append("page", String(params.page));
+        if (params.limit) queryParams.append("limit", String(params.limit));
+        if (params.sort) queryParams.append("sort", params.sort);
 
         return {
-          url: `/orders${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
-          method: 'GET',
+          url: `/orders${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
+          method: "GET",
         };
       },
       providesTags: (result) =>
         result
           ? [
-              ...result.data.map(({ id }) => ({ type: 'Order' as const, id })),
-              { type: 'Order', id: 'ADMIN_LIST' },
+              ...result.data.map(({ id }) => ({ type: "Order" as const, id })),
+              { type: "Order", id: "ADMIN_LIST" },
             ]
-          : [{ type: 'Order', id: 'ADMIN_LIST' }],
+          : [{ type: "Order", id: "ADMIN_LIST" }],
     }),
 
     // Get single order details
     getOrderById: builder.query<ApiResponse<Order>, number>({
       query: (id) => ({
         url: `/orders/${id}`,
-        method: 'GET',
+        method: "GET",
       }),
-      providesTags: (result, error, id) => [{ type: 'Order', id }],
+      providesTags: (result, error, id) => [{ type: "Order", id }],
     }),
 
     // Cancel order (5.5.4)
-    cancelOrder: builder.mutation<ApiResponse<void>, { id: number; data?: CancelOrderRequest }>({
+    cancelOrder: builder.mutation<
+      ApiResponse<void>,
+      { id: number; data?: CancelOrderRequest }
+    >({
       query: ({ id, data }) => ({
         url: `/orders/${id}/cancel`,
-        method: 'PUT',
+        method: "PUT",
         body: data || {},
       }),
       invalidatesTags: (result, error, { id }) => [
-        { type: 'Order', id },
-        { type: 'Order', id: 'LIST' },
-        { type: 'Order', id: 'ADMIN_LIST' },
+        { type: "Order", id },
+        { type: "Order", id: "LIST" },
+        { type: "Order", id: "ADMIN_LIST" },
       ],
     }),
 
     // Update order status - Admin only (5.5.2 Processing, 5.5.3 Pending, etc.)
-    updateOrderStatus: builder.mutation<ApiResponse<void>, { id: number; data: UpdateOrderStatusRequest }>({
+    updateOrderStatus: builder.mutation<
+      ApiResponse<void>,
+      { id: number; data: UpdateOrderStatusRequest }
+    >({
       query: ({ id, data }) => ({
         url: `/orders/${id}/status`,
-        method: 'PUT',
+        method: "PUT",
         body: data,
       }),
       invalidatesTags: (result, error, { id }) => [
-        { type: 'Order', id },
-        { type: 'Order', id: 'LIST' },
-        { type: 'Order', id: 'ADMIN_LIST' },
+        { type: "Order", id },
+        { type: "Order", id: "LIST" },
+        { type: "Order", id: "ADMIN_LIST" },
       ],
     }),
 
     // Get order tracking
-    getOrderTracking: builder.query<ApiResponse<OrderTrackingResponse>, number>({
-      query: (id) => ({
-        url: `/orders/${id}/tracking`,
-        method: 'GET',
+    getOrderTracking: builder.query<ApiResponse<OrderTrackingResponse>, number>(
+      {
+        query: (id) => ({
+          url: `/orders/${id}/tracking`,
+          method: "GET",
+        }),
+        providesTags: (result, error, id) => [
+          { type: "Order", id: `TRACKING_${id}` },
+        ],
+      },
+    ),
+
+    // Update order tracking location - Admin only
+    updateOrderLocation: builder.mutation<
+      ApiResponse<void>,
+      { id: number; location: string }
+    >({
+      query: ({ id, location }) => ({
+        url: `/orders/${id}/update-location`,
+        method: "PUT",
+        body: { location },
       }),
-      providesTags: (result, error, id) => [{ type: 'Order', id: `TRACKING_${id}` }],
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Order", id },
+        { type: "Order", id: "LIST" },
+        { type: "Order", id: "ADMIN_LIST" },
+      ],
     }),
   }),
 });
@@ -257,5 +305,6 @@ export const {
   useGetOrderByIdQuery,
   useCancelOrderMutation,
   useUpdateOrderStatusMutation,
+  useUpdateOrderLocationMutation,
   useGetOrderTrackingQuery,
 } = orderApi;

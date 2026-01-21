@@ -172,16 +172,7 @@ export const Shop = () => {
               {/* Quick Filters */}
               <div className="space-y-3">
                 <Label className="mb-2 block">Quick Filters</Label>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="featured"
-                    checked={featured}
-                    onCheckedChange={(checked) => { setFeatured(!!checked); setPage(1); }}
-                  />
-                  <Label htmlFor="featured" className="cursor-pointer">
-                    Featured Only
-                  </Label>
-                </div>
+                
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="inStock"

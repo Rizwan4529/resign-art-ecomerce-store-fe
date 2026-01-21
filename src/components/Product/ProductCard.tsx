@@ -77,7 +77,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               {product.name}
             </h3>
             <div className="text-xl font-bold text-blue-600 ml-2">
-              ${typeof product.price === 'string' ? product.price : product.price.toFixed(2)}
+              $
+              {product?.discountPrice
+                ? typeof product.discountPrice === "string"
+                  ? product.discountPrice
+                  : product.discountPrice.toFixed(2)
+                : typeof product.price === "string"
+                  ? product.price
+                  : product.price.toFixed(2)}
             </div>
           </div>
 
@@ -86,14 +93,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </p>
 
           {/* Rating and Reviews - only show if available */}
-          {(product.averageRating && parseFloat(product.averageRating.toString()) > 0) || (product.totalReviews && product.totalReviews > 0) ? (
+          {(product.averageRating &&
+            parseFloat(product.averageRating.toString()) > 0) ||
+          (product.totalReviews && product.totalReviews > 0) ? (
             <div className="flex items-center space-x-2">
               <div className="flex items-center">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
                     className={`w-4 h-4 ${
-                      i < Math.floor(parseFloat(product.averageRating?.toString() || '0'))
+                      i <
+                      Math.floor(
+                        parseFloat(product.averageRating?.toString() || "0"),
+                      )
                         ? "text-yellow-400 fill-current"
                         : "text-gray-300"
                     }`}

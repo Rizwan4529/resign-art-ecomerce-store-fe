@@ -126,6 +126,11 @@ export const Profile = () => {
       if (!phoneRegex.test(value)) {
         return; // Don't update if invalid characters are entered
       }
+      // Check max 13 digits
+      const digitCount = value.replace(/\D/g, "").length;
+      if (digitCount > 13) {
+        return; // Don't update if more than 13 digits
+      }
     }
     setProfileData((prev) => ({ ...prev, [field]: value }));
   };
@@ -152,7 +157,7 @@ export const Profile = () => {
   };
 
   const handleProfilePictureChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -479,7 +484,8 @@ export const Profile = () => {
                             }
                             placeholder="+1 (555) 123-4567"
                             pattern="[0-9+\-() ]*"
-                            title="Please enter a valid phone number (numbers, +, -, (, ) only)"
+                            title="Phone number can contain up to 13 digits"
+                            maxLength={20}
                           />
                         ) : (
                           <div className="flex items-center space-x-2 p-3 bg-gray-50 rounded-md">
@@ -505,7 +511,7 @@ export const Profile = () => {
                             <Calendar className="w-4 h-4 text-gray-500" />
                             <span>
                               {new Date(
-                                profileData.birthday
+                                profileData.birthday,
                               ).toLocaleDateString()}
                             </span>
                           </div>
@@ -579,7 +585,7 @@ export const Profile = () => {
                                       </p>
                                       <p className="text-sm text-gray-600">
                                         {new Date(
-                                          order.createdAt
+                                          order.createdAt,
                                         ).toLocaleDateString()}
                                       </p>
                                     </div>
@@ -593,10 +599,10 @@ export const Profile = () => {
                                         order.status === "DELIVERED"
                                           ? "bg-green-100 text-green-800"
                                           : order.status === "CANCELLED"
-                                          ? "bg-red-100 text-red-800"
-                                          : order.status === "SHIPPED"
-                                          ? "bg-blue-100 text-blue-800"
-                                          : ""
+                                            ? "bg-red-100 text-red-800"
+                                            : order.status === "SHIPPED"
+                                              ? "bg-blue-100 text-blue-800"
+                                              : ""
                                       }
                                     >
                                       {order.status}
@@ -877,8 +883,9 @@ export const Profile = () => {
             <DialogHeader>
               <DialogTitle>Delete Account</DialogTitle>
               <DialogDescription>
-                Are you sure you want to permanently delete your account? This action cannot
-                be undone and will remove all your data including orders, reviews, and cart items.
+                Are you sure you want to permanently delete your account? This
+                action cannot be undone and will remove all your data including
+                orders, reviews, and cart items.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>

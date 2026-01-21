@@ -1,5 +1,5 @@
-import { baseApi } from './baseApi';
-import { ApiResponse } from './types';
+import { baseApi } from "./baseApi";
+import { ApiResponse } from "./types";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -78,7 +78,7 @@ export interface Budget {
   spent: number;
   remaining: number;
   percentage: number;
-  status: 'OK' | 'WARNING' | 'EXCEEDED';
+  status: "OK" | "WARNING" | "EXCEEDED";
 }
 
 export interface DashboardSummary {
@@ -112,7 +112,7 @@ export interface GetExpensesParams {
   startDate?: string;
   endDate?: string;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 
 export interface AddExpenseRequest {
@@ -138,22 +138,25 @@ export interface SetBudgetRequest {
 export const profitApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // Get profit summary
-    getProfitSummary: builder.query<ApiResponse<ProfitSummary>, GetProfitSummaryParams | void>({
+    getProfitSummary: builder.query<
+      ApiResponse<ProfitSummary>,
+      GetProfitSummaryParams | void
+    >({
       query: (params = {}) => {
         const queryParams = new URLSearchParams();
 
         Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== '') {
+          if (value !== undefined && value !== null && value !== "") {
             queryParams.append(key, String(value));
           }
         });
 
         return {
-          url: `/reports/profit${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
-          method: 'GET',
+          url: `/reports/profit${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
+          method: "GET",
         };
       },
-      providesTags: ['SalesReport'],
+      providesTags: [{ type: "Profit" as const, id: "SUMMARY" }],
     }),
 
     // Get detailed profit report with monthly breakdown
@@ -164,15 +167,15 @@ export const profitApi = baseApi.injectEndpoints({
       query: (params = {}) => {
         const queryParams = new URLSearchParams();
         if (params.year) {
-          queryParams.append('year', String(params.year));
+          queryParams.append("year", String(params.year));
         }
 
         return {
-          url: `/reports/profit/detailed${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
-          method: 'GET',
+          url: `/reports/profit/detailed${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
+          method: "GET",
         };
       },
-      providesTags: ['SalesReport'],
+      providesTags: [{ type: "Profit" as const, id: "DETAILED" }],
     }),
 
     // Get expenses
@@ -184,27 +187,32 @@ export const profitApi = baseApi.injectEndpoints({
         const queryParams = new URLSearchParams();
 
         Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== '') {
+          if (value !== undefined && value !== null && value !== "") {
             queryParams.append(key, String(value));
           }
         });
 
         return {
-          url: `/reports/expenses${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
-          method: 'GET',
+          url: `/reports/expenses${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
+          method: "GET",
         };
       },
-      providesTags: ['SalesReport'],
+      providesTags: [{ type: "Profit" as const, id: "EXPENSES" }],
     }),
 
     // Add expense
     addExpense: builder.mutation<ApiResponse<Expense>, AddExpenseRequest>({
       query: (data) => ({
-        url: '/reports/expenses',
-        method: 'POST',
+        url: "/reports/expenses",
+        method: "POST",
         body: data,
       }),
-      invalidatesTags: ['SalesReport'],
+      invalidatesTags: [
+        { type: "Profit" as const, id: "SUMMARY" },
+        { type: "Profit" as const, id: "DETAILED" },
+        { type: "Profit" as const, id: "EXPENSES" },
+        { type: "SalesReport" as const, id: "REPORT" },
+      ],
     }),
 
     // Get expenses by category
@@ -216,77 +224,90 @@ export const profitApi = baseApi.injectEndpoints({
         const queryParams = new URLSearchParams();
 
         Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== '') {
+          if (value !== undefined && value !== null && value !== "") {
             queryParams.append(key, String(value));
           }
         });
 
         return {
-          url: `/reports/expenses/by-category${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
-          method: 'GET',
+          url: `/reports/expenses/by-category${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
+          method: "GET",
         };
       },
-      providesTags: ['SalesReport'],
+      providesTags: [{ type: "Profit" as const, id: "EXPENSES_BY_CATEGORY" }],
     }),
 
     // Get total expenses
     getTotalExpenses: builder.query<
-      ApiResponse<{ totalExpenses: number; expenseCount: number; averageExpense: number }>,
+      ApiResponse<{
+        totalExpenses: number;
+        expenseCount: number;
+        averageExpense: number;
+      }>,
       { startDate?: string; endDate?: string } | void
     >({
       query: (params = {}) => {
         const queryParams = new URLSearchParams();
 
         Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== '') {
+          if (value !== undefined && value !== null && value !== "") {
             queryParams.append(key, String(value));
           }
         });
 
         return {
-          url: `/reports/expenses/total${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
-          method: 'GET',
+          url: `/reports/expenses/total${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
+          method: "GET",
         };
       },
-      providesTags: ['SalesReport'],
+      providesTags: [{ type: "Profit" as const, id: "EXPENSES_TOTAL" }],
     }),
 
     // Set budget
     setBudget: builder.mutation<ApiResponse<Budget>, SetBudgetRequest>({
       query: (data) => ({
-        url: '/reports/budgets',
-        method: 'POST',
+        url: "/reports/budgets",
+        method: "POST",
         body: data,
       }),
-      invalidatesTags: ['SalesReport'],
+      invalidatesTags: [
+        { type: "Profit" as const, id: "BUDGETS" },
+        { type: "Profit" as const, id: "SUMMARY" },
+      ],
     }),
 
     // Get budgets
-    getBudgets: builder.query<ApiResponse<Budget[]>, { month?: number; year?: number } | void>({
+    getBudgets: builder.query<
+      ApiResponse<Budget[]>,
+      { month?: number; year?: number } | void
+    >({
       query: (params = {}) => {
         const queryParams = new URLSearchParams();
 
         Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== '') {
+          if (value !== undefined && value !== null && value !== "") {
             queryParams.append(key, String(value));
           }
         });
 
         return {
-          url: `/reports/budgets${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
-          method: 'GET',
+          url: `/reports/budgets${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
+          method: "GET",
         };
       },
-      providesTags: ['SalesReport'],
+      providesTags: [{ type: "Profit" as const, id: "BUDGETS" }],
     }),
 
     // Get dashboard summary
     getDashboardSummary: builder.query<ApiResponse<DashboardSummary>, void>({
       query: () => ({
-        url: '/reports/dashboard',
-        method: 'GET',
+        url: "/reports/dashboard",
+        method: "GET",
       }),
-      providesTags: ['SalesReport'],
+      providesTags: [
+        { type: "Profit" as const, id: "DASHBOARD" },
+        { type: "SalesReport" as const, id: "REPORT" },
+      ],
     }),
   }),
 });

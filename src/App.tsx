@@ -23,6 +23,7 @@ import { ResetPassword } from './pages/auth/ResetPassword';
 import { Profile } from './pages/Profile';
 import { Orders } from './pages/Orders';
 import { OrderTracking } from './pages/OrderTracking';
+import { Notifications } from './pages/Notifications';
 import { Categories } from './pages/Categories';
 import { About } from './pages/About';
 import { Contact } from './pages/Contact';
@@ -119,13 +120,21 @@ function AppContent() {
             </ProtectedRoute>
           } 
         />
-        <Route 
-          path="/order-tracking/:id" 
+        <Route
+          path="/order-tracking/:id"
           element={
             <ProtectedRoute>
               <AppLayout><OrderTracking /></AppLayout>
             </ProtectedRoute>
-          } 
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <AppLayout><Notifications /></AppLayout>
+            </ProtectedRoute>
+          }
         />
 
         {/* Admin Routes */}

@@ -1,20 +1,40 @@
-import React, { useState } from 'react';
-import { Key, Ban, Check } from 'lucide-react';
-import { toast } from 'sonner';
+import React, { useState } from "react";
+import { Key, Ban, Check } from "lucide-react";
+import { toast } from "sonner";
 import {
   useGetUsersQuery,
   useBlockUserMutation,
   useUnblockUserMutation,
   useResetUserPasswordMutation,
-} from '../../services/api/userApi';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
-import { Badge } from '../../components/ui/badge';
-import { Input } from '../../components/ui/input';
-import { Label } from '../../components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
-import { extractErrorMessage } from '../../utils/authHelpers';
+} from "../../services/api/userApi";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Badge } from "../../components/ui/badge";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "../../components/ui/dialog";
+import { extractErrorMessage } from "../../utils/authHelpers";
 
 interface ResetPasswordDialog {
   isOpen: boolean;
@@ -24,17 +44,23 @@ interface ResetPasswordDialog {
 
 export const UserManagement = () => {
   const [page, setPage] = useState(1);
-  const [resetPasswordDialog, setResetPasswordDialog] = useState<ResetPasswordDialog>({
-    isOpen: false,
-    userId: null,
-    userName: '',
-  });
-  const [newPassword, setNewPassword] = useState('');
+  const [resetPasswordDialog, setResetPasswordDialog] =
+    useState<ResetPasswordDialog>({
+      isOpen: false,
+      userId: null,
+      userName: "",
+    });
+  const [newPassword, setNewPassword] = useState("");
 
-  const { data: usersData, isLoading, refetch } = useGetUsersQuery({ page, limit: 10 });
+  const {
+    data: usersData,
+    isLoading,
+    refetch,
+  } = useGetUsersQuery({ page, limit: 10 });
   const [blockUser, { isLoading: isBlocking }] = useBlockUserMutation();
   const [unblockUser, { isLoading: isUnblocking }] = useUnblockUserMutation();
-  const [resetPassword, { isLoading: isResetting }] = useResetUserPasswordMutation();
+  const [resetPassword, { isLoading: isResetting }] =
+    useResetUserPasswordMutation();
 
   const users = usersData?.data || [];
   const pagination = usersData?.pagination;
@@ -45,7 +71,7 @@ export const UserManagement = () => {
       toast.success(`User "${userName}" has been blocked`);
       refetch();
     } catch (err: any) {
-      toast.error('Failed to block user', {
+      toast.error("Failed to block user", {
         description: extractErrorMessage(err),
       });
     }
@@ -57,7 +83,7 @@ export const UserManagement = () => {
       toast.success(`User "${userName}" has been unblocked`);
       refetch();
     } catch (err: any) {
-      toast.error('Failed to unblock user', {
+      toast.error("Failed to unblock user", {
         description: extractErrorMessage(err),
       });
     }
@@ -69,23 +95,23 @@ export const UserManagement = () => {
       userId,
       userName,
     });
-    setNewPassword('');
+    setNewPassword("");
   };
 
   const closeResetPasswordDialog = () => {
     setResetPasswordDialog({
       isOpen: false,
       userId: null,
-      userName: '',
+      userName: "",
     });
-    setNewPassword('');
+    setNewPassword("");
   };
 
   const handleResetPassword = async () => {
     if (!resetPasswordDialog.userId) return;
 
     if (!newPassword || newPassword.length < 6) {
-      toast.error('Password must be at least 6 characters long');
+      toast.error("Password must be at least 6 characters long");
       return;
     }
 
@@ -95,11 +121,13 @@ export const UserManagement = () => {
         newPassword,
       }).unwrap();
 
-      toast.success(`Password reset successfully for "${resetPasswordDialog.userName}"`);
+      toast.success(
+        `Password reset successfully for "${resetPasswordDialog.userName}"`,
+      );
       closeResetPasswordDialog();
       refetch();
     } catch (err: any) {
-      toast.error('Failed to reset password', {
+      toast.error("Failed to reset password", {
         description: extractErrorMessage(err),
       });
     }
@@ -123,7 +151,9 @@ export const UserManagement = () => {
       <Card className="bg-white/70 backdrop-blur-sm border-white/20">
         <CardHeader>
           <CardTitle>User Management</CardTitle>
-          <CardDescription>Manage registered users and reset passwords</CardDescription>
+          <CardDescription>
+            Manage registered users and reset passwords
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {users.length === 0 ? (
@@ -146,32 +176,54 @@ export const UserManagement = () => {
                     <TableRow key={user.id}>
                       <TableCell>
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium">
-                            {user.name.charAt(0).toUpperCase()}
-                          </div>
+                          {user.profileImage ? (
+                            <img
+                              src={`${import.meta.env.VITE_API_URL}${user.profileImage}`}
+                              alt={user.name}
+                              className="w-10 h-10 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium">
+                              {user.name.charAt(0).toUpperCase()}
+                            </div>
+                          )}
                           <div className="font-medium">{user.name}</div>
                         </div>
                       </TableCell>
                       <TableCell>{user.email}</TableCell>
                       <TableCell>
-                        <Badge variant={user.role === 'ADMIN' ? 'default' : 'secondary'}>
+                        <Badge
+                          variant={
+                            user.role === "ADMIN" ? "default" : "secondary"
+                          }
+                        >
                           {user.role}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={user.status === 'BLOCKED' ? 'destructive' : 'default'}>
+                        <Badge
+                          variant={
+                            user.status === "BLOCKED"
+                              ? "destructive"
+                              : "default"
+                          }
+                        >
                           {user.status}
                         </Badge>
                       </TableCell>
-                      <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                       <TableCell>
-                        {user.role !== 'ADMIN' && (
+                        {new Date(user.createdAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        {user.role !== "ADMIN" && (
                           <div className="flex justify-end gap-2">
                             {/* Reset Password Button */}
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => openResetPasswordDialog(user.id, user.name)}
+                              onClick={() =>
+                                openResetPasswordDialog(user.id, user.name)
+                              }
                               className="text-blue-600 hover:text-blue-700"
                             >
                               <Key className="w-4 h-4" />
@@ -182,18 +234,18 @@ export const UserManagement = () => {
                               variant="ghost"
                               size="sm"
                               onClick={() =>
-                                user.status === 'BLOCKED'
+                                user.status === "BLOCKED"
                                   ? handleUnblockUser(user.id, user.name)
                                   : handleBlockUser(user.id, user.name)
                               }
                               disabled={isBlocking || isUnblocking}
                               className={
-                                user.status === 'BLOCKED'
-                                  ? 'text-green-600 hover:text-green-700'
-                                  : 'text-red-600 hover:text-red-700'
+                                user.status === "BLOCKED"
+                                  ? "text-green-600 hover:text-green-700"
+                                  : "text-red-600 hover:text-red-700"
                               }
                             >
-                              {user.status === 'BLOCKED' ? (
+                              {user.status === "BLOCKED" ? (
                                 <Check className="w-4 h-4" />
                               ) : (
                                 <Ban className="w-4 h-4" />
@@ -211,7 +263,8 @@ export const UserManagement = () => {
               {pagination && pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between mt-6">
                   <p className="text-sm text-gray-600">
-                    Page {pagination.currentPage} of {pagination.totalPages} ({pagination.totalItems} total users)
+                    Page {pagination.currentPage} of {pagination.totalPages} (
+                    {pagination.totalItems} total users)
                   </p>
                   <div className="flex gap-2">
                     <Button
@@ -225,7 +278,9 @@ export const UserManagement = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      disabled={pagination.currentPage === pagination.totalPages}
+                      disabled={
+                        pagination.currentPage === pagination.totalPages
+                      }
                       onClick={() => setPage((p) => p + 1)}
                     >
                       Next
@@ -239,12 +294,18 @@ export const UserManagement = () => {
       </Card>
 
       {/* Reset Password Dialog */}
-      <Dialog open={resetPasswordDialog.isOpen} onOpenChange={(open) => !open && closeResetPasswordDialog()}>
+      <Dialog
+        open={resetPasswordDialog.isOpen}
+        onOpenChange={(open) => !open && closeResetPasswordDialog()}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Reset Password</DialogTitle>
             <DialogDescription>
-              Set a new password for <span className="font-semibold">{resetPasswordDialog.userName}</span>
+              Set a new password for{" "}
+              <span className="font-semibold">
+                {resetPasswordDialog.userName}
+              </span>
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -264,11 +325,18 @@ export const UserManagement = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={closeResetPasswordDialog} disabled={isResetting}>
+            <Button
+              variant="outline"
+              onClick={closeResetPasswordDialog}
+              disabled={isResetting}
+            >
               Cancel
             </Button>
-            <Button onClick={handleResetPassword} disabled={isResetting || !newPassword}>
-              {isResetting ? 'Resetting...' : 'Reset Password'}
+            <Button
+              onClick={handleResetPassword}
+              disabled={isResetting || !newPassword}
+            >
+              {isResetting ? "Resetting..." : "Reset Password"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -34,7 +34,7 @@ export const Cart = () => {
   const subtotal = parseFloat(cartData?.data?.summary?.subtotal || "0");
 
   // Calculate shipping and tax
-  const shippingCost = subtotal >= 5000 ? 0 : 500; // Free shipping for orders >= 5000
+  const shippingCost = 20; // Fixed shipping cost of $20
   const taxRate = 0.08;
   const taxAmount = subtotal * taxRate;
   const total = subtotal + shippingCost + taxAmount;
@@ -260,7 +260,7 @@ export const Cart = () => {
                                           >
                                             {key}: {String(value)}
                                           </Badge>
-                                        )
+                                        ),
                                       )}
                                     </div>
                                   </div>
@@ -295,7 +295,7 @@ export const Cart = () => {
                                   onClick={() =>
                                     handleUpdateQuantity(
                                       item.id,
-                                      item.quantity - 1
+                                      item.quantity - 1,
                                     )
                                   }
                                   disabled={item.quantity <= 1}
@@ -311,7 +311,7 @@ export const Cart = () => {
                                   onClick={() =>
                                     handleUpdateQuantity(
                                       item.id,
-                                      item.quantity + 1
+                                      item.quantity + 1,
                                     )
                                   }
                                   disabled={item.quantity >= item.product.stock}
@@ -327,13 +327,6 @@ export const Cart = () => {
                             </div>
 
                             <div className="flex items-center space-x-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-gray-600 hover:text-blue-600"
-                              >
-                                <Heart className="w-4 h-4" />
-                              </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -370,19 +363,8 @@ export const Cart = () => {
 
                   <div className="flex justify-between">
                     <span>Shipping</span>
-                    <span className="text-green-600">
-                      {shippingCost === 0
-                        ? "Free"
-                        : `$${shippingCost.toFixed(2)}`}
-                    </span>
+                    <span>${shippingCost.toFixed(2)}</span>
                   </div>
-
-                  {subtotal < 5000 && (
-                    <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-                      Add ${(5000 - subtotal).toFixed(2)} more for free
-                      shipping!
-                    </div>
-                  )}
 
                   <div className="flex justify-between">
                     <span>Tax (8%)</span>
@@ -433,16 +415,6 @@ export const Cart = () => {
                 </div>
               </div>
             </Card>
-          </div>
-        </div>
-
-        {/* Recently Viewed or Recommended Products */}
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">
-            You might also like
-          </h2>
-          <div className="text-center py-8 text-gray-600 bg-white/50 backdrop-blur-sm rounded-xl border border-white/20">
-            Recommended products would appear here based on cart items...
           </div>
         </div>
       </div>
