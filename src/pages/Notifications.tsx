@@ -259,7 +259,9 @@ export const Notifications = () => {
                               )}
                             </h4>
                             <p className="text-gray-600 mt-1">
-                              {notification.message}
+                              {notification.message}{" "}
+                              {notification?.courierCompany &&
+                                `via ${notification?.courierCompany}`}
                             </p>
                             <p className="text-sm text-gray-400 mt-2">
                               {formatTimeAgo(notification.sentAt)}

@@ -226,7 +226,7 @@ export const ProductDetail = () => {
             </div>
 
             <div className="text-3xl font-bold text-blue-600">
-              $
+              Rs.{" "}
               {product?.discountPrice
                 ? typeof product.discountPrice === "string"
                   ? product.discountPrice
@@ -382,7 +382,7 @@ export const ProductDetail = () => {
                 <div>
                   <h4 className="font-medium">Shipping</h4>
                   <ul className="list-disc list-inside text-gray-700 space-y-1">
-                    <li>Free shipping on orders over $150</li>
+                    <li>Free shipping on orders over Rs. 15,000</li>
                     <li>Standard shipping: 5-7 business days</li>
                     <li>Express shipping: 2-3 business days</li>
                     <li>Carefully packaged to prevent damage</li>

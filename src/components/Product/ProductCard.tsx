@@ -9,6 +9,7 @@ import { Badge } from "../ui/badge";
 import { useCart } from "../../context/CartContext";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 import { getFirstImageUrl } from "../../utils/imageUtils";
+import { toast } from "sonner";
 
 interface ProductCardProps {
   product: Product;
@@ -27,9 +28,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     e.preventDefault();
     e.stopPropagation();
     addToCart(product);
-    setShowToast(true); // <- show toast
+    toast.success("Product added to cart successfully");
+    // setShowToast(true); // <- show toast
 
-    setTimeout(() => setShowToast(false), 2000); // auto hide in 3 sec
+    // setTimeout(() => setShowToast(false), 2000); // auto hide in 3 sec
   };
 
   return (
@@ -77,7 +79,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               {product.name}
             </h3>
             <div className="text-xl font-bold text-blue-600 ml-2">
-              $
+              Rs.{" "}
               {product?.discountPrice
                 ? typeof product.discountPrice === "string"
                   ? product.discountPrice

@@ -53,7 +53,11 @@ export const Contact = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    const digitCount = formData.phone.replace(/\D/g, "").length;
+    if (digitCount < 7) {
+      toast.warning("Phone no cannot be less than 7 digits");
+      return;
+    }
     try {
       await submitContact({
         name: formData.name,
@@ -456,7 +460,6 @@ export const Contact = () => {
                 <p className="text-gray-600 mb-4">
                   123 Art Street, Creative City, Pakistan
                 </p>
-                <Button variant="outline">Get Directions</Button>
               </div>
             </div>
           </Card>

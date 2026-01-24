@@ -103,6 +103,7 @@ export const Profile = () => {
     address: "123 Main Street, Pakistan",
     birthday: "1990-01-01",
   });
+  const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     if (user) {
@@ -137,6 +138,11 @@ export const Profile = () => {
 
   const handleSave = async () => {
     try {
+      const digitCount = profileData.phone.replace(/\D/g, "").length;
+      if (digitCount < 7) {
+        toast.warning("Phone No cannot be less than 7 digits");
+        return;
+      }
       const response = await updateProfileMutation({
         name: profileData.name,
         phone: profileData.phone,
@@ -502,6 +508,7 @@ export const Profile = () => {
                             id="birthday"
                             type="date"
                             value={profileData.birthday}
+                            max={today}
                             onChange={(e) =>
                               handleInputChange("birthday", e.target.value)
                             }

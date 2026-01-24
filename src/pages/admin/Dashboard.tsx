@@ -69,8 +69,8 @@ export const AdminDashboard = () => {
 
   const dashboard = dashboardData?.data;
   const products = productsData?.data || [];
-  const totalProducts = productsData?.pagination?.totalCount || 0;
-  const totalUsers = usersData?.pagination?.totalCount || 0;
+  const totalProducts = productsData?.pagination?.totalItems || 0;
+  const totalUsers = usersData?.pagination?.totalItems || 0;
 
   // Prepare monthly revenue chart data from profit report
   const monthlyRevenueData =
@@ -147,7 +147,7 @@ export const AdminDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                $
+                Rs.{" "}
                 {dashboard.monthlyRevenue.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
@@ -240,7 +240,7 @@ export const AdminDashboard = () => {
                       <XAxis dataKey="month" />
                       <YAxis />
                       <Tooltip
-                        formatter={(value) => [`$${value}`, "Revenue"]}
+                        formatter={(value) => [`Rs. ${value}`, "Revenue"]}
                       />
                       <Line
                         type="monotone"
@@ -279,13 +279,13 @@ export const AdminDashboard = () => {
                               {product.discountPrice ? (
                                 <>
                                   <span className="text-green-600 font-medium">
-                                    $
+                                    Rs.{" "}
                                     {typeof product.discountPrice === "string"
                                       ? product.discountPrice
                                       : product.discountPrice.toFixed(2)}
                                   </span>
                                   <span className="line-through ml-2">
-                                    $
+                                    Rs.{" "}
                                     {typeof product.price === "string"
                                       ? product.price
                                       : product.price.toFixed(2)}
@@ -293,7 +293,7 @@ export const AdminDashboard = () => {
                                 </>
                               ) : (
                                 <>
-                                  $
+                                  Rs.{" "}
                                   {typeof product.price === "string"
                                     ? product.price
                                     : product.price.toFixed(2)}

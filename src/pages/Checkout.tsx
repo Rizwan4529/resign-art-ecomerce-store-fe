@@ -60,17 +60,26 @@ export const Checkout = () => {
   });
 
   const items = cartData?.data?.items || [];
-  console.log("Items 213213213213", items);
   const subtotal = parseFloat(cartData?.data?.summary?.subtotal || "0");
-  const shippingCost = 20; // Fixed shipping cost of $20
+  const shippingCost = 500; // Fixed shipping cost of Rs. 200
   const taxRate = 0.08;
   const tax = subtotal * taxRate;
   const grandTotal = subtotal + shippingCost + tax;
 
+  // Helper function to validate phone number (7-13 digits, not counting +)
+  const isValidPhone = (phone: string) => {
+    const digitCount = phone.replace(/\D/g, "").length;
+    return digitCount >= 7 && digitCount <= 13;
+  };
+
   const validateStep = (stepNumber: number) => {
     switch (stepNumber) {
       case 1:
-        return shippingAddress.trim() !== "" && shippingPhone.trim() !== "";
+        return (
+          shippingAddress.trim() !== "" &&
+          shippingPhone.trim() !== "" &&
+          isValidPhone(shippingPhone)
+        );
       case 2:
         if (paymentMethod === "CREDIT_CARD" || paymentMethod === "DEBIT_CARD") {
           return (
@@ -532,7 +541,7 @@ export const Checkout = () => {
                     >
                       {isCreatingOrder
                         ? "Processing..."
-                        : `Place Order - $${grandTotal.toFixed(2)}`}
+                        : `Place Order - Rs. ${grandTotal.toFixed(2)}`}
                     </Button>
                   </div>
                 </CardContent>
@@ -579,7 +588,9 @@ export const Checkout = () => {
                             Qty: {item.quantity}
                           </p>
                         </div>
-                        <p className="font-medium">${itemTotal.toFixed(2)}</p>
+                        <p className="font-medium">
+                          Rs. {itemTotal.toFixed(2)}
+                        </p>
                       </div>
                     );
                   })}
@@ -591,21 +602,21 @@ export const Checkout = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>Rs. {subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Shipping</span>
-                    <span>${shippingCost.toFixed(2)}</span>
+                    <span>Rs. {shippingCost.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Tax (8%)</span>
-                    <span>${tax.toFixed(2)}</span>
+                    <span>Rs. {tax.toFixed(2)}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between text-lg font-semibold">
                     <span>Total</span>
                     <span className="text-blue-600">
-                      ${grandTotal.toFixed(2)}
+                      Rs. {grandTotal.toFixed(2)}
                     </span>
                   </div>
                 </div>

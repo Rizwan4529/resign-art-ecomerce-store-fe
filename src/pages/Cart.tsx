@@ -34,7 +34,7 @@ export const Cart = () => {
   const subtotal = parseFloat(cartData?.data?.summary?.subtotal || "0");
 
   // Calculate shipping and tax
-  const shippingCost = 20; // Fixed shipping cost of $20
+  const shippingCost = 500; // Fixed shipping cost of Rs. 200
   const taxRate = 0.08;
   const taxAmount = subtotal * taxRate;
   const total = subtotal + shippingCost + taxAmount;
@@ -168,9 +168,11 @@ export const Cart = () => {
               {items.length} item{items.length > 1 ? "s" : ""} in your cart
             </p>
           </div>
-          <Button variant="ghost" onClick={() => navigate(-1)}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Continue Shopping
+          <Button variant="ghost" asChild>
+            <div>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              <Link to="/shop">Continue Shopping</Link>
+            </div>
           </Button>
         </div>
 
@@ -269,14 +271,14 @@ export const Cart = () => {
 
                             <div className="text-right">
                               <div className="text-xl font-bold text-blue-600 mb-2">
-                                ${itemTotal.toFixed(2)}
+                                Rs. {itemTotal.toFixed(2)}
                               </div>
                               <div className="text-sm text-gray-600">
-                                ${itemPrice.toFixed(2)} each
+                                Rs. {itemPrice.toFixed(2)} each
                               </div>
                               {currentPrice !== itemPrice && (
                                 <div className="text-xs text-orange-600 mt-1">
-                                  Price changed to ${currentPrice.toFixed(2)}
+                                  Price changed to Rs. {currentPrice.toFixed(2)}
                                 </div>
                               )}
                             </div>
@@ -358,24 +360,26 @@ export const Cart = () => {
                       Subtotal ({cartData?.data?.summary?.totalItems || 0}{" "}
                       items)
                     </span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>Rs. {subtotal.toFixed(2)}</span>
                   </div>
 
                   <div className="flex justify-between">
                     <span>Shipping</span>
-                    <span>${shippingCost.toFixed(2)}</span>
+                    <span>Rs. {shippingCost.toFixed(2)}</span>
                   </div>
 
                   <div className="flex justify-between">
                     <span>Tax (8%)</span>
-                    <span>${taxAmount.toFixed(2)}</span>
+                    <span>Rs. {taxAmount.toFixed(2)}</span>
                   </div>
 
                   <Separator />
 
                   <div className="flex justify-between text-lg font-semibold">
                     <span>Total</span>
-                    <span className="text-blue-600">${total.toFixed(2)}</span>
+                    <span className="text-blue-600">
+                      Rs. {total.toFixed(2)}
+                    </span>
                   </div>
                 </div>
 

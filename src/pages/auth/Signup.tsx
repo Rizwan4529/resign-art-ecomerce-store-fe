@@ -95,7 +95,7 @@ export const Signup = () => {
       dispatch(setCredentials({ user, token }));
 
       // Navigate to home
-      navigate("/");
+      navigate("/login");
     } catch (err: any) {
       setError(extractErrorMessage(err));
     }
@@ -274,8 +274,8 @@ export const Signup = () => {
                           strength >= 3
                             ? "text-green-600"
                             : strength >= 2
-                            ? "text-blue-600"
-                            : "text-red-600"
+                              ? "text-blue-600"
+                              : "text-red-600"
                         }`}
                       >
                         {getStrengthText(strength)}

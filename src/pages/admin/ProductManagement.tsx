@@ -407,13 +407,13 @@ export const ProductManagement = () => {
                           {product.discountPrice ? (
                             <>
                               <p className="font-medium text-green-600">
-                                $
+                                Rs.{" "}
                                 {typeof product.discountPrice === "string"
                                   ? product.discountPrice
                                   : product.discountPrice.toFixed(2)}
                               </p>
                               <p className="text-xs text-gray-500 line-through">
-                                $
+                                Rs.{" "}
                                 {typeof product.price === "string"
                                   ? product.price
                                   : product.price.toFixed(2)}
@@ -421,7 +421,7 @@ export const ProductManagement = () => {
                             </>
                           ) : (
                             <p className="font-medium">
-                              $
+                              Rs.{" "}
                               {typeof product.price === "string"
                                 ? product.price
                                 : product.price.toFixed(2)}
@@ -547,13 +547,15 @@ export const ProductManagement = () => {
                   id="price"
                   type="number"
                   step="0.01"
+                  min="0"
                   value={formData.price}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
                     setFormData({
                       ...formData,
-                      price: parseFloat(e.target.value) || 0,
-                    })
-                  }
+                      price: isNaN(value) || value < 0 ? 0 : value,
+                    });
+                  }}
                   required
                 />
               </div>
@@ -563,13 +565,15 @@ export const ProductManagement = () => {
                   id="discountPrice"
                   type="number"
                   step="0.01"
+                  min="0"
                   value={formData.discountPrice || ""}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
                     setFormData({
                       ...formData,
-                      discountPrice: parseFloat(e.target.value) || undefined,
-                    })
-                  }
+                      discountPrice: isNaN(value) || value < 0 ? undefined : value,
+                    });
+                  }}
                 />
               </div>
               <div>
@@ -597,13 +601,15 @@ export const ProductManagement = () => {
                 <Input
                   id="stock"
                   type="number"
+                  min="0"
                   value={formData.stock}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
                     setFormData({
                       ...formData,
-                      stock: parseInt(e.target.value) || 0,
-                    })
-                  }
+                      stock: isNaN(value) || value < 0 ? 0 : value,
+                    });
+                  }}
                   required
                 />
               </div>
@@ -758,13 +764,15 @@ export const ProductManagement = () => {
                   id="edit-price"
                   type="number"
                   step="0.01"
+                  min="0"
                   value={formData.price}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
                     setFormData({
                       ...formData,
-                      price: parseFloat(e.target.value) || 0,
-                    })
-                  }
+                      price: isNaN(value) || value < 0 ? 0 : value,
+                    });
+                  }}
                   required
                 />
               </div>
@@ -774,13 +782,15 @@ export const ProductManagement = () => {
                   id="edit-discountPrice"
                   type="number"
                   step="0.01"
+                  min="0"
                   value={formData.discountPrice || ""}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
                     setFormData({
                       ...formData,
-                      discountPrice: parseFloat(e.target.value) || undefined,
-                    })
-                  }
+                      discountPrice: isNaN(value) || value < 0 ? undefined : value,
+                    });
+                  }}
                 />
               </div>
               <div>
@@ -808,13 +818,15 @@ export const ProductManagement = () => {
                 <Input
                   id="edit-stock"
                   type="number"
+                  min="0"
                   value={formData.stock}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
                     setFormData({
                       ...formData,
-                      stock: parseInt(e.target.value) || 0,
-                    })
-                  }
+                      stock: isNaN(value) || value < 0 ? 0 : value,
+                    });
+                  }}
                   required
                 />
               </div>

@@ -49,7 +49,7 @@ export const Home = () => {
     {
       icon: Truck,
       title: "Free Shipping",
-      description: "Free shipping on orders over $150",
+      description: "Free shipping on orders over Rs. 15,000",
     },
     {
       icon: HeadphonesIcon,

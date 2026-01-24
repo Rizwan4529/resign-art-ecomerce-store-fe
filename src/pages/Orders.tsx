@@ -278,7 +278,7 @@ export const Orders = () => {
                             </div>
                             <div className="text-right">
                               <div className="text-2xl font-bold text-blue-600">
-                                $
+                                Rs.{" "}
                                 {typeof order.totalAmount === "string"
                                   ? order.totalAmount
                                   : order.totalAmount.toFixed(2)}
@@ -313,7 +313,7 @@ export const Orders = () => {
                                     {item.productName}
                                   </h4>
                                   <p className="text-sm text-gray-600">
-                                    Quantity: {item.quantity} • $
+                                    Quantity: {item.quantity} • Rs.{" "}
                                     {typeof item.unitPrice === "string"
                                       ? item.unitPrice
                                       : item.unitPrice.toFixed(2)}{" "}
@@ -322,7 +322,7 @@ export const Orders = () => {
                                 </div>
                                 <div className="text-right">
                                   <p className="font-medium">
-                                    $
+                                    Rs.{" "}
                                     {typeof item.totalPrice === "string"
                                       ? item.totalPrice
                                       : item.totalPrice.toFixed(2)}
@@ -335,20 +335,9 @@ export const Orders = () => {
                           {/* Order Actions */}
                           <div className="flex flex-col sm:flex-row gap-3 sm:justify-between items-start sm:items-center pt-4 border-t border-gray-200">
                             <div className="flex flex-wrap gap-2">
-                              {order.status === "DELIVERED" && (
-                                <>
-                                  <Button variant="outline" size="sm">
-                                    <Download className="w-4 h-4 mr-2" />
-                                    Download Invoice
-                                  </Button>
-                                  <Button variant="outline" size="sm">
-                                    Reorder Items
-                                  </Button>
-                                </>
-                              )}
+                             
 
-                              {(order.status === "PENDING" ||
-                                order.status === "CONFIRMED") && (
+                              {order.status === "PENDING" && (
                                 <Button
                                   variant="outline"
                                   size="sm"
@@ -407,7 +396,7 @@ export const Orders = () => {
           <Card className="bg-white/70 backdrop-blur-sm border-white/20">
             <CardContent className="p-6 text-center">
               <div className="text-3xl font-bold text-green-600 mb-2">
-                $
+                Rs.{" "}
                 {orders
                   .reduce((sum, order) => {
                     const total =

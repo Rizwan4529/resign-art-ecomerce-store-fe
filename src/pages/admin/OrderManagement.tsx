@@ -380,7 +380,7 @@ export const OrderManagement = () => {
                       </div>
                       <div className="text-right">
                         <div className="text-2xl font-bold text-blue-600">
-                          $
+                          Rs.{" "}
                           {typeof order.totalAmount === "string"
                             ? order.totalAmount
                             : order.totalAmount.toFixed(2)}
@@ -443,7 +443,7 @@ export const OrderManagement = () => {
                               {item.productName}
                             </h4>
                             <p className="text-sm text-gray-600">
-                              Quantity: {item.quantity} • $
+                              Quantity: {item.quantity} • Rs.{" "}
                               {typeof item.unitPrice === "string"
                                 ? item.unitPrice
                                 : item.unitPrice.toFixed(2)}{" "}
@@ -452,7 +452,7 @@ export const OrderManagement = () => {
                           </div>
                           <div className="text-right">
                             <p className="font-medium">
-                              $
+                              Rs.{" "}
                               {typeof item.totalPrice === "string"
                                 ? item.totalPrice
                                 : item.totalPrice.toFixed(2)}
